@@ -1,5 +1,9 @@
 # DevPlat recommended ignore rules
 
+# secrets files
+secrets.yaml
+**/secrets.yaml
+
 # Logs
 logs/
 *.log
