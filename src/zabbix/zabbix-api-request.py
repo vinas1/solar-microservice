@@ -18,7 +18,7 @@ HEADERS = {"Content-Type": "application/json"} 
 
 ### Method A: API Token (Recommended for Zabbix 5.4+)
 
-API_TOKEN = "c3ad508855eabe1d69807ccce2f003929779728202478fe3cccdf974c6319d38" 
+API_TOKEN = "Your Zabbix API Token Here" 
 
 ### Method B: Legacy Username & Password (Fallback if token isn't generated)
 
