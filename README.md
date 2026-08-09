@@ -183,5 +183,5 @@ flowchart LR
 - **Connection Timeout Hierarchy:** Enforces a 5,000 ms BLE connect timeout and a 3,000 ms notification collection timeout to prevent orphaned connections from locking the main execution loop.
 - **Client Cleanup:** Disconnects and deletes NimBLEClient instances on every iteration to keep internal memory allocation clean over long-term operation.
 
-<br>  
-Telemetry data is sent to Zabbix for observability. ... *see the [issues](https://github.com/vinas1/solar-microservice/issues) to report a bug and to see the feature backlog* ...
+  
+See or report issues [here](https://github.com/vinas1/solar-microservice/issues).
