@@ -1,0 +1,314 @@
+{
+    "dashboardid": "58",
+    "name": "Morningstar",
+    "userid": "1",
+    "private": "1",
+    "display_period": "30",
+    "auto_start": "1",
+    "uuid": "",
+    "pages": [
+        {
+            "dashboard_pageid": "58",
+            "name": "",
+            "display_period": "0",
+            "widgets": [
+                {
+                    "widgetid": "401",
+                    "type": "dataover",
+                    "name": "",
+                    "x": "0",
+                    "y": "0",
+                    "width": "24",
+                    "height": "3",
+                    "view_mode": "0",
+                    "fields": [
+                        {
+                            "type": "3",
+                            "name": "hostids",
+                            "value": "10450"
+                        },
+                        {
+                            "type": "3",
+                            "name": "hostids",
+                            "value": "10453"
+                        }
+                    ]
+                },
+                {
+                    "widgetid": "402",
+                    "type": "svggraph",
+                    "name": "Solar Panel Array Potential Watts",
+                    "x": "0",
+                    "y": "18",
+                    "width": "24",
+                    "height": "5",
+                    "view_mode": "0",
+                    "fields": [
+                        {
+                            "type": "1",
+                            "name": "ds.hosts.0.0",
+                            "value": "SolarSystem1"
+                        },
+                        {
+                            "type": "1",
+                            "name": "ds.hosts.0.1",
+                            "value": "SolarSystem2"
+                        },
+                        {
+                            "type": "1",
+                            "name": "ds.items.0.0",
+                            "value": "Array: Sweep Pmax"
+                        },
+                        {
+                            "type": "1",
+                            "name": "ds.color.0",
+                            "value": "00796B"
+                        },
+                        {
+                            "type": "0",
+                            "name": "righty",
+                            "value": "0"
+                        },
+                        {
+                            "type": "0",
+                            "name": "ds.width.0",
+                            "value": "2"
+                        }
+                    ]
+                },
+                {
+                    "widgetid": "405",
+                    "type": "svggraph",
+                    "name": "",
+                    "x": "0",
+                    "y": "28",
+                    "width": "24",
+                    "height": "5",
+                    "view_mode": "0",
+                    "fields": [
+                        {
+                            "type": "1",
+                            "name": "ds.hosts.0.0",
+                            "value": "SolarSystem1"
+                        },
+                        {
+                            "type": "1",
+                            "name": "ds.items.0.0",
+                            "value": "Temperature: Ambient"
+                        },
+                        {
+                            "type": "1",
+                            "name": "ds.items.0.1",
+                            "value": "Temperature: Battery"
+                        },
+                        {
+                            "type": "1",
+                            "name": "ds.color.0",
+                            "value": "FBC02D"
+                        },
+                        {
+                            "type": "0",
+                            "name": "righty",
+                            "value": "0"
+                        },
+                        {
+                            "type": "1",
+                            "name": "ds.items.0.2",
+                            "value": "Temperature: Heatsink"
+                        },
+                        {
+                            "type": "0",
+                            "name": "ds.width.0",
+                            "value": "5"
+                        },
+                        {
+                            "type": "1",
+                            "name": "ds.hosts.1.0",
+                            "value": "SolarSystem2"
+                        },
+                        {
+                            "type": "1",
+                            "name": "ds.items.1.0",
+                            "value": "Temperature: Battery"
+                        },
+                        {
+                            "type": "1",
+                            "name": "ds.items.1.1",
+                            "value": "Temperature: Heatsink"
+                        },
+                        {
+                            "type": "1",
+                            "name": "ds.color.1",
+                            "value": "EF5350"
+                        },
+                        {
+                            "type": "0",
+                            "name": "ds.width.1",
+                            "value": "4"
+                        }
+                    ]
+                },
+                {
+                    "widgetid": "406",
+                    "type": "svggraph",
+                    "name": "",
+                    "x": "0",
+                    "y": "8",
+                    "width": "24",
+                    "height": "5",
+                    "view_mode": "0",
+                    "fields": [
+                        {
+                            "type": "1",
+                            "name": "ds.hosts.0.0",
+                            "value": "SolarSystem1"
+                        },
+                        {
+                            "type": "1",
+                            "name": "ds.hosts.0.1",
+                            "value": "SolarSystem2"
+                        },
+                        {
+                            "type": "1",
+                            "name": "ds.items.0.0",
+                            "value": "Battery: Charge Current"
+                        },
+                        {
+                            "type": "1",
+                            "name": "ds.color.0",
+                            "value": "FF0080"
+                        },
+                        {
+                            "type": "0",
+                            "name": "righty",
+                            "value": "0"
+                        }
+                    ]
+                },
+                {
+                    "widgetid": "407",
+                    "type": "svggraph",
+                    "name": "Battery Bank vDC",
+                    "x": "0",
+                    "y": "3",
+                    "width": "24",
+                    "height": "5",
+                    "view_mode": "0",
+                    "fields": [
+                        {
+                            "type": "1",
+                            "name": "ds.hosts.0.0",
+                            "value": "SolarSystem1"
+                        },
+                        {
+                            "type": "1",
+                            "name": "ds.hosts.0.1",
+                            "value": "SolarSystem2"
+                        },
+                        {
+                            "type": "1",
+                            "name": "ds.items.0.0",
+                            "value": "Battery: Voltage"
+                        },
+                        {
+                            "type": "1",
+                            "name": "ds.color.0",
+                            "value": "2E7D32"
+                        },
+                        {
+                            "type": "0",
+                            "name": "ds.type.0",
+                            "value": "2"
+                        },
+                        {
+                            "type": "0",
+                            "name": "ds.width.0",
+                            "value": "2"
+                        },
+                        {
+                            "type": "0",
+                            "name": "righty",
+                            "value": "0"
+                        }
+                    ]
+                },
+                {
+                    "widgetid": "408",
+                    "type": "svggraph",
+                    "name": "Solar Panel Array Voltage",
+                    "x": "0",
+                    "y": "13",
+                    "width": "24",
+                    "height": "5",
+                    "view_mode": "0",
+                    "fields": [
+                        {
+                            "type": "1",
+                            "name": "ds.hosts.0.0",
+                            "value": "SolarSystem1"
+                        },
+                        {
+                            "type": "1",
+                            "name": "ds.hosts.0.1",
+                            "value": "SolarSystem2"
+                        },
+                        {
+                            "type": "1",
+                            "name": "ds.items.0.0",
+                            "value": "Array: Voltage"
+                        },
+                        {
+                            "type": "1",
+                            "name": "ds.color.0",
+                            "value": "03A9F4"
+                        },
+                        {
+                            "type": "0",
+                            "name": "ds.width.0",
+                            "value": "2"
+                        },
+                        {
+                            "type": "0",
+                            "name": "righty",
+                            "value": "0"
+                        }
+                    ]
+                },
+                {
+                    "widgetid": "409",
+                    "type": "graph",
+                    "name": "",
+                    "x": "12",
+                    "y": "23",
+                    "width": "12",
+                    "height": "5",
+                    "view_mode": "0",
+                    "fields": [
+                        {
+                            "type": "6",
+                            "name": "graphid",
+                            "value": "1943"
+                        }
+                    ]
+                },
+                {
+                    "widgetid": "410",
+                    "type": "graph",
+                    "name": "",
+                    "x": "0",
+                    "y": "23",
+                    "width": "12",
+                    "height": "5",
+                    "view_mode": "0",
+                    "fields": [
+                        {
+                            "type": "6",
+                            "name": "graphid",
+                            "value": "1857"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

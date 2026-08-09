@@ -1,0 +1,118 @@
+{
+    "dashboardid": "1",
+    "name": "Global view",
+    "userid": "1",
+    "private": "0",
+    "display_period": "30",
+    "auto_start": "1",
+    "uuid": "",
+    "pages": [
+        {
+            "dashboard_pageid": "1",
+            "name": "",
+            "display_period": "0",
+            "widgets": [
+                {
+                    "widgetid": "1",
+                    "type": "systeminfo",
+                    "name": "",
+                    "x": "0",
+                    "y": "0",
+                    "width": "8",
+                    "height": "4",
+                    "view_mode": "0",
+                    "fields": []
+                },
+                {
+                    "widgetid": "2",
+                    "type": "hostavail",
+                    "name": "",
+                    "x": "8",
+                    "y": "0",
+                    "width": "12",
+                    "height": "2",
+                    "view_mode": "1",
+                    "fields": [
+                        {
+                            "type": "0",
+                            "name": "interface_type",
+                            "value": "1"
+                        }
+                    ]
+                },
+                {
+                    "widgetid": "3",
+                    "type": "problemsbysv",
+                    "name": "",
+                    "x": "8",
+                    "y": "2",
+                    "width": "12",
+                    "height": "2",
+                    "view_mode": "1",
+                    "fields": [
+                        {
+                            "type": "0",
+                            "name": "show_type",
+                            "value": "1"
+                        }
+                    ]
+                },
+                {
+                    "widgetid": "4",
+                    "type": "clock",
+                    "name": "",
+                    "x": "20",
+                    "y": "0",
+                    "width": "4",
+                    "height": "4",
+                    "view_mode": "1",
+                    "fields": []
+                },
+                {
+                    "widgetid": "5",
+                    "type": "problems",
+                    "name": "",
+                    "x": "0",
+                    "y": "4",
+                    "width": "20",
+                    "height": "10",
+                    "view_mode": "0",
+                    "fields": [
+                        {
+                            "type": "0",
+                            "name": "show",
+                            "value": "3"
+                        },
+                        {
+                            "type": "0",
+                            "name": "show_tags",
+                            "value": "3"
+                        }
+                    ]
+                },
+                {
+                    "widgetid": "6",
+                    "type": "favmaps",
+                    "name": "",
+                    "x": "20",
+                    "y": "4",
+                    "width": "4",
+                    "height": "5",
+                    "view_mode": "0",
+                    "fields": []
+                },
+                {
+                    "widgetid": "7",
+                    "type": "favgraphs",
+                    "name": "",
+                    "x": "20",
+                    "y": "9",
+                    "width": "4",
+                    "height": "5",
+                    "view_mode": "0",
+                    "fields": []
+                }
+            ]
+        }
+    ]
+}

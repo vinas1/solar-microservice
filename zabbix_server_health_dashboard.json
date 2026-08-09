@@ -1,0 +1,763 @@
+{
+    "dashboardid": "2",
+    "name": "Zabbix server health",
+    "userid": "1",
+    "private": "1",
+    "display_period": "30",
+    "auto_start": "1",
+    "uuid": "",
+    "pages": [
+        {
+            "dashboard_pageid": "2",
+            "name": "",
+            "display_period": "0",
+            "widgets": [
+                {
+                    "widgetid": "8",
+                    "type": "problems",
+                    "name": "Zabbix server problems",
+                    "x": "0",
+                    "y": "0",
+                    "width": "20",
+                    "height": "4",
+                    "view_mode": "0",
+                    "fields": [
+                        {
+                            "type": "3",
+                            "name": "hostids",
+                            "value": "10084"
+                        }
+                    ]
+                },
+                {
+                    "widgetid": "9",
+                    "type": "clock",
+                    "name": "Local time",
+                    "x": "20",
+                    "y": "0",
+                    "width": "4",
+                    "height": "4",
+                    "view_mode": "1",
+                    "fields": []
+                },
+                {
+                    "widgetid": "10",
+                    "type": "svggraph",
+                    "name": "Values processed per second",
+                    "x": "0",
+                    "y": "4",
+                    "width": "8",
+                    "height": "5",
+                    "view_mode": "0",
+                    "fields": [
+                        {
+                            "type": "0",
+                            "name": "ds.axisy.0",
+                            "value": "0"
+                        },
+                        {
+                            "type": "0",
+                            "name": "ds.fill.0",
+                            "value": "3"
+                        },
+                        {
+                            "type": "0",
+                            "name": "ds.missingdatafunc.0",
+                            "value": "0"
+                        },
+                        {
+                            "type": "0",
+                            "name": "ds.transparency.0",
+                            "value": "0"
+                        },
+                        {
+                            "type": "0",
+                            "name": "ds.type.0",
+                            "value": "0"
+                        },
+                        {
+                            "type": "0",
+                            "name": "ds.width.0",
+                            "value": "1"
+                        },
+                        {
+                            "type": "0",
+                            "name": "graph_item_problems",
+                            "value": "1"
+                        },
+                        {
+                            "type": "0",
+                            "name": "legend",
+                            "value": "0"
+                        },
+                        {
+                            "type": "0",
+                            "name": "righty",
+                            "value": "0"
+                        },
+                        {
+                            "type": "0",
+                            "name": "show_problems",
+                            "value": "1"
+                        },
+                        {
+                            "type": "1",
+                            "name": "ds.color.0",
+                            "value": "00BFFF"
+                        },
+                        {
+                            "type": "1",
+                            "name": "ds.hosts.0.0",
+                            "value": "Zabbix server"
+                        },
+                        {
+                            "type": "1",
+                            "name": "ds.items.0.0",
+                            "value": "Number of processed *values per second"
+                        },
+                        {
+                            "type": "1",
+                            "name": "ds.timeshift.0",
+                            "value": ""
+                        },
+                        {
+                            "type": "1",
+                            "name": "lefty_min",
+                            "value": "0"
+                        },
+                        {
+                            "type": "1",
+                            "name": "problemhosts.0",
+                            "value": "Zabbix server"
+                        }
+                    ]
+                },
+                {
+                    "widgetid": "11",
+                    "type": "svggraph",
+                    "name": "Utilization of data collectors",
+                    "x": "8",
+                    "y": "4",
+                    "width": "8",
+                    "height": "5",
+                    "view_mode": "0",
+                    "fields": [
+                        {
+                            "type": "0",
+                            "name": "ds.axisy.0",
+                            "value": "0"
+                        },
+                        {
+                            "type": "0",
+                            "name": "ds.fill.0",
+                            "value": "3"
+                        },
+                        {
+                            "type": "0",
+                            "name": "ds.missingdatafunc.0",
+                            "value": "0"
+                        },
+                        {
+                            "type": "0",
+                            "name": "ds.transparency.0",
+                            "value": "0"
+                        },
+                        {
+                            "type": "0",
+                            "name": "ds.type.0",
+                            "value": "0"
+                        },
+                        {
+                            "type": "0",
+                            "name": "ds.width.0",
+                            "value": "1"
+                        },
+                        {
+                            "type": "0",
+                            "name": "graph_item_problems",
+                            "value": "1"
+                        },
+                        {
+                            "type": "0",
+                            "name": "legend",
+                            "value": "0"
+                        },
+                        {
+                            "type": "0",
+                            "name": "righty",
+                            "value": "0"
+                        },
+                        {
+                            "type": "0",
+                            "name": "show_problems",
+                            "value": "1"
+                        },
+                        {
+                            "type": "1",
+                            "name": "ds.color.0",
+                            "value": "E57373"
+                        },
+                        {
+                            "type": "1",
+                            "name": "ds.hosts.0.0",
+                            "value": "Zabbix server"
+                        },
+                        {
+                            "type": "1",
+                            "name": "ds.items.0.0",
+                            "value": "Utilization of * data collector *"
+                        },
+                        {
+                            "type": "1",
+                            "name": "ds.timeshift.0",
+                            "value": ""
+                        },
+                        {
+                            "type": "1",
+                            "name": "lefty_max",
+                            "value": "100"
+                        },
+                        {
+                            "type": "1",
+                            "name": "lefty_min",
+                            "value": "0"
+                        },
+                        {
+                            "type": "1",
+                            "name": "problemhosts.0",
+                            "value": "Zabbix server"
+                        }
+                    ]
+                },
+                {
+                    "widgetid": "12",
+                    "type": "svggraph",
+                    "name": "Utilization of internal processes",
+                    "x": "16",
+                    "y": "4",
+                    "width": "8",
+                    "height": "5",
+                    "view_mode": "0",
+                    "fields": [
+                        {
+                            "type": "0",
+                            "name": "ds.axisy.0",
+                            "value": "0"
+                        },
+                        {
+                            "type": "0",
+                            "name": "ds.fill.0",
+                            "value": "3"
+                        },
+                        {
+                            "type": "0",
+                            "name": "ds.missingdatafunc.0",
+                            "value": "0"
+                        },
+                        {
+                            "type": "0",
+                            "name": "ds.transparency.0",
+                            "value": "0"
+                        },
+                        {
+                            "type": "0",
+                            "name": "ds.type.0",
+                            "value": "0"
+                        },
+                        {
+                            "type": "0",
+                            "name": "ds.width.0",
+                            "value": "1"
+                        },
+                        {
+                            "type": "0",
+                            "name": "graph_item_problems",
+                            "value": "1"
+                        },
+                        {
+                            "type": "0",
+                            "name": "legend",
+                            "value": "0"
+                        },
+                        {
+                            "type": "0",
+                            "name": "righty",
+                            "value": "0"
+                        },
+                        {
+                            "type": "0",
+                            "name": "show_problems",
+                            "value": "1"
+                        },
+                        {
+                            "type": "1",
+                            "name": "ds.color.0",
+                            "value": "E57373"
+                        },
+                        {
+                            "type": "1",
+                            "name": "ds.hosts.0.0",
+                            "value": "Zabbix server"
+                        },
+                        {
+                            "type": "1",
+                            "name": "ds.items.0.0",
+                            "value": "Utilization of * internal *"
+                        },
+                        {
+                            "type": "1",
+                            "name": "ds.timeshift.0",
+                            "value": ""
+                        },
+                        {
+                            "type": "1",
+                            "name": "lefty_max",
+                            "value": "100"
+                        },
+                        {
+                            "type": "1",
+                            "name": "lefty_min",
+                            "value": "0"
+                        },
+                        {
+                            "type": "1",
+                            "name": "problemhosts.0",
+                            "value": "Zabbix server"
+                        }
+                    ]
+                },
+                {
+                    "widgetid": "13",
+                    "type": "svggraph",
+                    "name": "Cache usage",
+                    "x": "0",
+                    "y": "9",
+                    "width": "8",
+                    "height": "5",
+                    "view_mode": "0",
+                    "fields": [
+                        {
+                            "type": "0",
+                            "name": "ds.axisy.0",
+                            "value": "0"
+                        },
+                        {
+                            "type": "0",
+                            "name": "ds.fill.0",
+                            "value": "0"
+                        },
+                        {
+                            "type": "0",
+                            "name": "ds.missingdatafunc.0",
+                            "value": "0"
+                        },
+                        {
+                            "type": "0",
+                            "name": "ds.transparency.0",
+                            "value": "0"
+                        },
+                        {
+                            "type": "0",
+                            "name": "ds.type.0",
+                            "value": "0"
+                        },
+                        {
+                            "type": "0",
+                            "name": "ds.width.0",
+                            "value": "2"
+                        },
+                        {
+                            "type": "0",
+                            "name": "graph_item_problems",
+                            "value": "1"
+                        },
+                        {
+                            "type": "0",
+                            "name": "legend",
+                            "value": "0"
+                        },
+                        {
+                            "type": "0",
+                            "name": "righty",
+                            "value": "0"
+                        },
+                        {
+                            "type": "0",
+                            "name": "show_problems",
+                            "value": "1"
+                        },
+                        {
+                            "type": "1",
+                            "name": "ds.color.0",
+                            "value": "4DB6AC"
+                        },
+                        {
+                            "type": "1",
+                            "name": "ds.hosts.0.0",
+                            "value": "Zabbix server"
+                        },
+                        {
+                            "type": "1",
+                            "name": "ds.items.0.0",
+                            "value": "Zabbix*cache*% used"
+                        },
+                        {
+                            "type": "1",
+                            "name": "ds.timeshift.0",
+                            "value": ""
+                        },
+                        {
+                            "type": "1",
+                            "name": "lefty_max",
+                            "value": "100"
+                        },
+                        {
+                            "type": "1",
+                            "name": "lefty_min",
+                            "value": "0"
+                        },
+                        {
+                            "type": "1",
+                            "name": "problemhosts.0",
+                            "value": "Zabbix server"
+                        }
+                    ]
+                },
+                {
+                    "widgetid": "14",
+                    "type": "svggraph",
+                    "name": "Value cache effectiveness",
+                    "x": "8",
+                    "y": "9",
+                    "width": "8",
+                    "height": "5",
+                    "view_mode": "0",
+                    "fields": [
+                        {
+                            "type": "0",
+                            "name": "ds.axisy.0",
+                            "value": "0"
+                        },
+                        {
+                            "type": "0",
+                            "name": "ds.axisy.1",
+                            "value": "0"
+                        },
+                        {
+                            "type": "0",
+                            "name": "ds.fill.0",
+                            "value": "3"
+                        },
+                        {
+                            "type": "0",
+                            "name": "ds.fill.1",
+                            "value": "3"
+                        },
+                        {
+                            "type": "0",
+                            "name": "ds.missingdatafunc.0",
+                            "value": "0"
+                        },
+                        {
+                            "type": "0",
+                            "name": "ds.missingdatafunc.1",
+                            "value": "0"
+                        },
+                        {
+                            "type": "0",
+                            "name": "ds.transparency.0",
+                            "value": "0"
+                        },
+                        {
+                            "type": "0",
+                            "name": "ds.transparency.1",
+                            "value": "0"
+                        },
+                        {
+                            "type": "0",
+                            "name": "ds.type.0",
+                            "value": "0"
+                        },
+                        {
+                            "type": "0",
+                            "name": "ds.type.1",
+                            "value": "0"
+                        },
+                        {
+                            "type": "0",
+                            "name": "ds.width.0",
+                            "value": "2"
+                        },
+                        {
+                            "type": "0",
+                            "name": "ds.width.1",
+                            "value": "2"
+                        },
+                        {
+                            "type": "0",
+                            "name": "graph_item_problems",
+                            "value": "1"
+                        },
+                        {
+                            "type": "0",
+                            "name": "legend",
+                            "value": "0"
+                        },
+                        {
+                            "type": "0",
+                            "name": "righty",
+                            "value": "0"
+                        },
+                        {
+                            "type": "0",
+                            "name": "show_problems",
+                            "value": "1"
+                        },
+                        {
+                            "type": "1",
+                            "name": "ds.color.0",
+                            "value": "9CCC65"
+                        },
+                        {
+                            "type": "1",
+                            "name": "ds.color.1",
+                            "value": "FF465C"
+                        },
+                        {
+                            "type": "1",
+                            "name": "ds.hosts.0.0",
+                            "value": "Zabbix server"
+                        },
+                        {
+                            "type": "1",
+                            "name": "ds.hosts.1.0",
+                            "value": "Zabbix server"
+                        },
+                        {
+                            "type": "1",
+                            "name": "ds.items.0.0",
+                            "value": "Zabbix value cache hits"
+                        },
+                        {
+                            "type": "1",
+                            "name": "ds.items.1.0",
+                            "value": "Zabbix value cache misses"
+                        },
+                        {
+                            "type": "1",
+                            "name": "ds.timeshift.0",
+                            "value": ""
+                        },
+                        {
+                            "type": "1",
+                            "name": "ds.timeshift.1",
+                            "value": ""
+                        },
+                        {
+                            "type": "1",
+                            "name": "lefty_min",
+                            "value": "0"
+                        },
+                        {
+                            "type": "1",
+                            "name": "problemhosts.0",
+                            "value": "Zabbix server"
+                        }
+                    ]
+                },
+                {
+                    "widgetid": "15",
+                    "type": "svggraph",
+                    "name": "Queue size",
+                    "x": "16",
+                    "y": "9",
+                    "width": "8",
+                    "height": "5",
+                    "view_mode": "0",
+                    "fields": [
+                        {
+                            "type": "0",
+                            "name": "ds.axisy.0",
+                            "value": "0"
+                        },
+                        {
+                            "type": "0",
+                            "name": "ds.axisy.1",
+                            "value": "0"
+                        },
+                        {
+                            "type": "0",
+                            "name": "ds.axisy.2",
+                            "value": "0"
+                        },
+                        {
+                            "type": "0",
+                            "name": "ds.fill.0",
+                            "value": "0"
+                        },
+                        {
+                            "type": "0",
+                            "name": "ds.fill.1",
+                            "value": "0"
+                        },
+                        {
+                            "type": "0",
+                            "name": "ds.fill.2",
+                            "value": "0"
+                        },
+                        {
+                            "type": "0",
+                            "name": "ds.missingdatafunc.0",
+                            "value": "0"
+                        },
+                        {
+                            "type": "0",
+                            "name": "ds.missingdatafunc.1",
+                            "value": "0"
+                        },
+                        {
+                            "type": "0",
+                            "name": "ds.missingdatafunc.2",
+                            "value": "0"
+                        },
+                        {
+                            "type": "0",
+                            "name": "ds.transparency.0",
+                            "value": "0"
+                        },
+                        {
+                            "type": "0",
+                            "name": "ds.transparency.1",
+                            "value": "0"
+                        },
+                        {
+                            "type": "0",
+                            "name": "ds.transparency.2",
+                            "value": "0"
+                        },
+                        {
+                            "type": "0",
+                            "name": "ds.type.0",
+                            "value": "0"
+                        },
+                        {
+                            "type": "0",
+                            "name": "ds.type.1",
+                            "value": "0"
+                        },
+                        {
+                            "type": "0",
+                            "name": "ds.type.2",
+                            "value": "0"
+                        },
+                        {
+                            "type": "0",
+                            "name": "ds.width.0",
+                            "value": "2"
+                        },
+                        {
+                            "type": "0",
+                            "name": "ds.width.1",
+                            "value": "2"
+                        },
+                        {
+                            "type": "0",
+                            "name": "ds.width.2",
+                            "value": "2"
+                        },
+                        {
+                            "type": "0",
+                            "name": "graph_item_problems",
+                            "value": "1"
+                        },
+                        {
+                            "type": "0",
+                            "name": "legend",
+                            "value": "0"
+                        },
+                        {
+                            "type": "0",
+                            "name": "righty",
+                            "value": "0"
+                        },
+                        {
+                            "type": "0",
+                            "name": "show_problems",
+                            "value": "1"
+                        },
+                        {
+                            "type": "1",
+                            "name": "ds.color.0",
+                            "value": "B0AF07"
+                        },
+                        {
+                            "type": "1",
+                            "name": "ds.color.1",
+                            "value": "E53935"
+                        },
+                        {
+                            "type": "1",
+                            "name": "ds.color.2",
+                            "value": "0275B8"
+                        },
+                        {
+                            "type": "1",
+                            "name": "ds.hosts.0.0",
+                            "value": "Zabbix server"
+                        },
+                        {
+                            "type": "1",
+                            "name": "ds.hosts.1.0",
+                            "value": "Zabbix server"
+                        },
+                        {
+                            "type": "1",
+                            "name": "ds.hosts.2.0",
+                            "value": "Zabbix server"
+                        },
+                        {
+                            "type": "1",
+                            "name": "ds.items.0.0",
+                            "value": "Zabbix queue"
+                        },
+                        {
+                            "type": "1",
+                            "name": "ds.items.1.0",
+                            "value": "Zabbix queue over 10 minutes"
+                        },
+                        {
+                            "type": "1",
+                            "name": "ds.items.2.0",
+                            "value": "Zabbix preprocessing queue"
+                        },
+                        {
+                            "type": "1",
+                            "name": "ds.timeshift.0",
+                            "value": ""
+                        },
+                        {
+                            "type": "1",
+                            "name": "ds.timeshift.1",
+                            "value": ""
+                        },
+                        {
+                            "type": "1",
+                            "name": "ds.timeshift.2",
+                            "value": ""
+                        },
+                        {
+                            "type": "1",
+                            "name": "lefty_min",
+                            "value": "0"
+                        },
+                        {
+                            "type": "1",
+                            "name": "problemhosts.0",
+                            "value": "Zabbix server"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

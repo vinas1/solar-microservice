@@ -1,0 +1,14 @@
+Host: Solar Service
+
+Item Name						Item Key						Type				Status
+----------------------------------------------------------------------------------------------
+Controller 1 Battery SOC		rover_40.battery_soc			Zabbix trapper		Enabled
+Controller 1 Battery Voltage	rover_40.battery_volts			Zabbix trapper		Enabled
+Controller 1 Charging Amps		rover_40.charging_amps			Zabbix trapper		Enabled
+Controller 1 PV Amps			rover_40.pv_amps				Zabbix trapper		Enabled
+Controller 1 PV Voltage			rover_40.pv_volts				Zabbix trapper		Enabled
+Controller 2 Battery SOC		rover_60.battery_soc			Zabbix trapper		Enabled
+Controller 2 Battery Voltage	rover_60.battery_volts			Zabbix trapper		Enabled
+Controller 2 Charging Amps		rover_60.charging_amps			Zabbix trapper		Enabled
+Controller 2 PV Amps			rover_60.pv_amps				Zabbix trapper		Enabled
+Controller 2 PV Voltage			rover_60.pv_volts				Zabbix trapper		Enabled
