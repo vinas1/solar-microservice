@@ -11,7 +11,7 @@ This repo contains an end-to-end telemetry pipeline for Renogy solar equipment o
 
 1. **Hardware Requirements**
 - Any Renogy rover charge controller equipped with a BT-1 or BT-2 bluetooth adapter. (I wrote this for rover 40 and 60 but others should work fine) 
-- k3s or a way to run your docker microservice
+- k3s or a way to run your docker microservice and a free zabbix instance
    - The bluetooth probe was built on the following device:
      - [ESP32-S3 DevKitC-1 N16R8 Development Board](https://www.amazon.com/dp/B0GVSHT2Q2)
    - Alternatively, use these specifications if the above is unavailable:
@@ -80,26 +80,37 @@ Before proceeding, ensure you have the following tools installed:
 This document outlines the system architecture for the edge probe firmware and telemetry pipeline monitoring dual Renogy Rover Charge Controllers via Bluetooth Low Energy (BLE) Modbus RTU.
 
 ```mermaid
-flowchart TD
-    subgraph Controllers [Off-Grid Hardware]
-        RC[Renogy Solar Controllers<br/>• Rover 40 MACs<br/>• Rover 60 MACs]  
+flowchart LR
+    %% Palette & Styling
+    classDef hardware fill:#0f172a,stroke:#0284c7,stroke-width:2px,color:#f8fafc
+    classDef firmware fill:#1e1b4b,stroke:#6366f1,stroke-width:2px,color:#f8fafc
+    classDef cluster fill:#064e3b,stroke:#10b981,stroke-width:2px,color:#f8fafc
+    classDef zabbix fill:#7f1d1d,stroke:#f87171,stroke-width:2px,color:#f8fafc
+
+    subgraph HW ["⚡ Off-Grid Hardware"]
+        RC["<b>Renogy Solar Controllers</b><hr/>• Rover 40 MPPT<br/>• Rover 60 MPPT"]:::hardware
     end
 
-    subgraph Probe [ESP32-S3 Firmware]
-        EP[ESP32-S3 Edge Probe<br/>• NimBLE Modbus RTU Engine<br/>• Telnet Server :23<br/>• ArduinoOTA Listener]  
+    subgraph Edge ["📟 Edge Layer"]
+        EP["<b>ESP32-S3 Edge Probe</b><hr/>• NimBLE Modbus RTU Engine<br/>• Telnet Server <i>(:23)</i><br/>• ArduinoOTA Listener"]:::firmware
     end
 
-    subgraph Cluster [K3s Infrastructure]
-        API[FastAPI Microservice<br/>Port 30500<br/>/api/renogy]
-        ZAB[Zabbix for telemetry observability]
+    subgraph K3s ["☸️ K3s Infrastructure"]
+        API["<b>FastAPI Microservice</b><hr/>• Port 30500<br/>• Endpoint: <code>/api/renogy</code>"]:::cluster
+        ZAB["<b>Zabbix Server</b><hr/>• Trapper Dashboards<br/>• Telemetry Observability"]:::zabbix
     end
 
-    RC <-->|BLE GATT| EP
-    EP -->|HTTP POST<br/>JSON Payload| API
-    API --> ZAB
+    RC <== "📶 BLE GATT<br/><i>(Modbus RTU)</i>" ==> EP
+    EP -- "🌐 HTTP POST<br/><i>(JSON Payload)</i>" --> API
+    API -- "📊 Telemetry Handoff" --> ZAB
+
+    %% Subgraph Styling
+    style HW fill:#f8fafc,stroke:#94a3b8,stroke-width:1px,stroke-dasharray: 4 4
+    style Edge fill:#f8fafc,stroke:#94a3b8,stroke-width:1px,stroke-dasharray: 4 4
+    style K3s fill:#f8fafc,stroke:#94a3b8,stroke-width:1px,stroke-dasharray: 4 4
 ```
 
-Telemetry data is sent to Zabbix for observability.
+
 ## Component Specifications
 
 ### Edge Firmware Subsystems (ESP32-S3)
