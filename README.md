@@ -168,6 +168,13 @@ flowchart LR
   }
   ```
 
+## Telemetry Observability
+I'm using Zabbix for data ingest from the Solar-Service microservice, and have [provided a working graph](https://github.com/vinas1/solar-microservice/blob/main/src/zabbix/morningstar_renogy_dashboard.json).
+You can easily use Prometheus with Grafana or just leverage telnet for real time telemetry.
+
+<img width="978" height="509" alt="telnet-solar-service" src="https://github.com/user-attachments/assets/0efac1a9-108d-43c1-b9a2-d5baa8818ae0" />
+
+
 ## Network and Service Matrix
 
 | Service / Protocol | Source Node | Destination Node | Port / Channel | Purpose |
