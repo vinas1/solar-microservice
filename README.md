@@ -4,6 +4,9 @@
 
 This repo contains Arduino C++ code and a Python RESTful API microservice endpoint for use with a Renogy Bluetooth stack. It uses an inexpensive ESP32-S3 development board to read modbus telemetry data and send it to a Kubernetes (k8s) microservice. The project deploys using GitHub Container Registry (GHCR).
 
+<img width="1332" height="1145" alt="image" src="https://github.com/user-attachments/assets/1e67ea14-36df-4830-aa23-b94111b88e12" />
+
+
 ## Quick Start
 
 1. **Set Up the ESP32 Firmware**
