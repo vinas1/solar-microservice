@@ -81,7 +81,7 @@ This document outlines the system architecture for the edge probe firmware and t
 
 ```mermaid
 flowchart LR
-    %% Palette & Styling
+    %% Palette & Node Styling
     classDef hardware fill:#0f172a,stroke:#0284c7,stroke-width:2px,color:#f8fafc
     classDef firmware fill:#1e1b4b,stroke:#6366f1,stroke-width:2px,color:#f8fafc
     classDef cluster fill:#064e3b,stroke:#10b981,stroke-width:2px,color:#f8fafc
@@ -104,10 +104,10 @@ flowchart LR
     EP -- "🌐 HTTP POST<br/><i>(JSON Payload)</i>" --> API
     API -- "📊 Telemetry Handoff" --> ZAB
 
-    %% Subgraph Styling
-    style HW fill:#f8fafc,stroke:#94a3b8,stroke-width:1px,stroke-dasharray: 4 4
-    style Edge fill:#f8fafc,stroke:#94a3b8,stroke-width:1px,stroke-dasharray: 4 4
-    style K3s fill:#f8fafc,stroke:#94a3b8,stroke-width:1px,stroke-dasharray: 4 4
+    %% Subgraph Box & Text Contrast Styling
+    style HW fill:#0284c710,stroke:#0284c7,stroke-width:1.5px,stroke-dasharray: 4 4,color:#0284c7
+    style Edge fill:#6366f110,stroke:#6366f1,stroke-width:1.5px,stroke-dasharray: 4 4,color:#6366f1
+    style K3s fill:#10b98110,stroke:#10b981,stroke-width:1.5px,stroke-dasharray: 4 4,color:#10b981
 ```
 
 
