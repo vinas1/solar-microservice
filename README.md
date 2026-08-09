@@ -2,7 +2,7 @@
 
 <img width="1000" height="200" alt="download" src="https://github.com/user-attachments/assets/0af7c269-b475-432e-a5e7-a9dbae7a61a0"/>
 
-This repo contains Arduino C++ code and a Python RESTful API microservice endpoint for use with a Renogy Bluetooth stack. It uses an inexpensive ESP32-S3 development board to read modbus telemetry data and send it to a Kubernetes (k8s) microservice. The project deploys using GitHub Container Registry (GHCR).
+This repo contains an end-to-end telemetry pipeline for Renogy solar equipment over Bluetooth. An ESP32-S3 microcontroller reads Modbus data via the Renogy Bluetooth stack and pushes it to a Python RESTful API microservice running on a Kubernetes (k3s) cluster. The microservice processes the modbus payload where our custom provided Zabbix dashboards ingest the data for real-time visualization and historical graphing. Backend container images are packaged and deployed using GitHub Container Registry (GHCR).
 
 <img width="1332" height="1145" alt="image" src="https://github.com/user-attachments/assets/1e67ea14-36df-4830-aa23-b94111b88e12" />
 
