@@ -39,13 +39,12 @@ Before proceeding, ensure you have the following tools installed:
 
 2. **Configure K3s to Use the GitHub Container Registry (GHCR) Secret**
    ```bash
-   kubectl create secret docker-registry ghcr-secret \\
-     --docker-server=ghcr.io \\
-     --docker-username=vinas1 \\
-     --docker-password=<GHCR_TOKEN> \\
-     --docker-email=vinas1@nospam.com \\
+   kubectl create secret docker-registry ghcr-secret \
+     --docker-server=ghcr.io \
+     --docker-username=vinas1 \
+     --docker-password=<GHCR_TOKEN> \
+     --docker-email=vinas1@nospam.com \
      --namespace=default
-   ```
 
 3. **Deploy the Kubernetes Manifest to Your K3s Cluster**
    ```bash
@@ -55,10 +54,9 @@ Before proceeding, ensure you have the following tools installed:
 4. **Verify Pod Health and Test API Endpoint**
    ```bash
    kubectl get pods -l app=solar-service
-   curl -X POST http://localhost:30500/api/renogy \\
-     -H "Content-Type: application/json" \\
+   curl -X POST http://localhost:30500/api/renogy \
+     -H "Content-Type: application/json" \
      -d '{"controller1": {"battery_voltage": 13.6}}'
-   ```
 
 5. **Inspect Logs and Manage Iterative Updates**
    ```bash
@@ -79,23 +77,24 @@ This document outlines the system architecture for the edge probe firmware and t
 ```mermaid
 flowchart TD
     subgraph Controllers [Off-Grid Hardware]
-        RC[Renogy Solar Controllers<br/>• Rover 40 MACs<br/>• Rover 60 MACs]
+        RC[Renogy Solar Controllers<br/>• Rover 40 MACs<br/>• Rover 60 MACs]  
     end
 
     subgraph Probe [ESP32-S3 Firmware]
-        EP[ESP32-S3 Edge Probe<br/>• NimBLE Modbus RTU Engine<br/>• Telnet Server :23<br/>• ArduinoOTA Listener]
+        EP[ESP32-S3 Edge Probe<br/>• NimBLE Modbus RTU Engine<br/>• Telnet Server :23<br/>• ArduinoOTA Listener]  
     end
 
     subgraph Cluster [K3s Infrastructure]
         API[FastAPI Microservice<br/>Port 30500<br/>/api/renogy]
-        ZAB[Zabbix Trapper / Telemetry]
+        ZAB[Zabbix for telemetry observability]
     end
 
-    RC <-->|BLE GATT<br/>TX: FFD1 / RX: FFF1| EP
+    RC <-->|BLE GATT| EP
     EP -->|HTTP POST<br/>JSON Payload| API
     API --> ZAB
 ```
 
+Telemetry data is sent to Zabbix for observability.
 ## Component Specifications
 
 ### Edge Firmware Subsystems (ESP32-S3)
@@ -132,10 +131,10 @@ flowchart TD
   | Metric | Buffer Byte Offset | Data Type | Register Scale Factor | Target Output Unit |
   | --- | --- | --- | --- | --- |
   | Battery SOC | `rxBuffer[3..4]` | `uint16_t` (Big-Endian) | $1:1$ | % |
-  | Battery Volts | `rxBuffer[5..6]` | `uint16_t` (Big-Endian) | $0.1$ | Volts (V) |
-  | Charging Amps | `rxBuffer[7..8]` | `uint16_t` (Big-Endian) | $0.01$ | Amperes (A) |
-  | PV Input Volts | `rxBuffer[17..18]` | `uint16_t` (Big-Endian) | $0.1$ | Volts (V) |
-  | PV Input Amps | `rxBuffer[19..20]` | `uint16_t` (Big-Endian) | $0.01$ | Amperes (A) |
+  | Battery Volts | `rxBuffer[5..6]` | `uint16_t` (Big-Endian) | $0.1$ | Volts (V)
+  | Charging Amps | `rxBuffer[7..8]` | `uint16_t` (Big-Endian) | $0.01$ | Amperes (A)
+  | PV Input Volts | `rxBuffer[17..18]` | `uint16_t` (Big-Endian) | $0.1$ | Volts (V)
+  | PV Input Amps | `rxBuffer[19..20]` | `uint16_t` (Big-Endian) | $0.01$ | Amperes (A)
 
 ### Ingestion Service (K3s Cluster)
 - **Endpoint:** [http://192.168.0.60:30500/api/renogy](http://192.168.0.60:30500/api/renogy)
@@ -147,7 +146,7 @@ flowchart TD
       "battery_soc": 98,
       "battery_volts": 13.6,
       "charging_amps": 12.45,
-     , pv_volts": 41.2,
+       , pv_volts": 41.2,
       "pv_amps": 4.10
     }
   }
@@ -168,6 +167,5 @@ flowchart TD
 - **Connection Timeout Hierarchy:** Enforces a 5,000 ms BLE connect timeout and a 3,000 ms notification collection timeout to prevent orphaned connections from locking the main execution loop.
 - **Client Cleanup:** Disconnects and deletes NimBLEClient instances on every iteration to keep internal memory allocation clean over long-term operation.
 
-<br>
-
-... *see the [issues](https://github.com/vinas1/solar-microservice/issues) to report a bug and to see the feature backlog* ...
+<br>  
+Telemetry data is sent to Zabbix for observability. ... *see the [issues](https://github.com/vinas1/solar-microservice/issues) to report a bug and to see the feature backlog* ...
