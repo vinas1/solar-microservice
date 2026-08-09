@@ -12,7 +12,7 @@ This repo contains an end-to-end telemetry pipeline for Renogy solar equipment o
 1. **Hardware Requirements**
 - Any Renogy rover charge controller equipped with a BT-1 or BT-2 bluetooth adapter. (I wrote this for rover 40 and 60 but others should work fine) 
 - k3s or a way to run your docker microservice
-   - The bluetook probe was built on the following device:
+   - The bluetooth probe was built on the following device:
      - [ESP32-S3 DevKitC-1 N16R8 Development Board](https://www.amazon.com/dp/B0GVSHT2Q2)
    - Alternatively, use these specifications if the above is unavailable:
      - Dual-Core Xtensa LX7
