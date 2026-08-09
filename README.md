@@ -9,12 +9,10 @@ This repo contains an end-to-end telemetry pipeline for Renogy solar equipment o
 
 ## Quick Start
 
-1. **Set Up the ESP32 Firmware**
-   - Edit the [esp32-ble-probe.cpp](./src/esp32-ble-probe.cpp).
-   - Upload it to your ESP32 device.
-
-2. **Hardware Requirements**
-   - Use the following device:
+1. **Hardware Requirements**
+- Any Renogy rover charge controller equipped with a BT-1 or BT-2 bluetooth adapter. (I wrote this for rover 40 and 60 but others should work fine) 
+- k3s or a way to run your docker microservice
+   - The bluetook probe was built on the following device:
      - [ESP32-S3 DevKitC-1 N16R8 Development Board](https://www.amazon.com/dp/B0GVSHT2Q2)
    - Alternatively, use these specifications if the above is unavailable:
      - Dual-Core Xtensa LX7
@@ -22,6 +20,10 @@ This repo contains an end-to-end telemetry pipeline for Renogy solar equipment o
      - WiFi & Bluetooth 5.0
      - USB-C
      - External Antenna Support for IoT & Embedded Projects
+       
+2. **Set Up the ESP32 Firmware**
+   - Edit the [esp32-ble-probe.cpp](./src/esp32-ble-probe.cpp).
+   - Upload it to your ESP32 device
 
 ## Dependencies
 
