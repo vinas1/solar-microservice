@@ -4,15 +4,20 @@ This is the Zabbix observability documentation for the **Modbus Solar Power Tele
 
 ## 🌞 Project Overview
 
+This repository focuses on the telemetry and observability aspects of the solar power system, specifically how data from Renogy solar equipment is ingested and visualized using Zabbix.
+
 <img width="1000" height="200" alt="download" src="https://github.com/user-attachments/assets/0af7c269-b475-432e-a5e7-a9dbae7a61a0"/>
 
-This repo contains an end-to-end telemetry pipeline for Renogy solar equipment over Bluetooth. An ESP32-S3 microcontroller reads Modbus data via the Renogy Bluetooth stack and pushes it to a Python RESTful API microservice running on a Kubernetes (k3s) cluster. The microservice processes the modbus payload where our custom provided Zabbix dashboards ingest the data for real-time visualization and historical graphing. Backend container images are packaged and deployed using GitHub Container Registry (GHCR).
+The telemetry pipeline includes:
+- An ESP32-S3 microcontroller reading Modbus data via the Renogy Bluetooth stack.
+- A Python RESTful API microservice (running on Kubernetes) processing the Modbus payload.
+- Zabbix server ingesting telemetry data, providing real-time visualization and historical graphing.
 
 <img width="1332" height="1145" alt="image" src="https://github.com/user-attachments/assets/1e67ea14-36df-4830-aa23-b94111b88e12" />
 
 ## 🎯 Purpose
 
-The Zabbix integration provides infrastructure and service-level observability for the solar-microservice stack. It allows the application to report health, availability, and operational state to a Zabbix server or proxy so operators can identify issues before they impact users.
+Zabbix provides infrastructure and service-level telemetry observability for the solar-microservice stack. It allows the system to report key solar power metrics and operational states to a Zabbix server, enabling operators to monitor and analyze system performance in real-time.
 
 ### Key Capabilities
 
@@ -54,106 +59,54 @@ flowchart LR
     style K3s fill:#10b98110,stroke:#10b981,stroke-width:1.5px,stroke-dasharray: 4 4,color:#10b981
 ```
 
-## 📊 Telemetry Observability
+## 📊 Telemetry Dashboard
 
-I'm using Zabbix for data ingest from the Solar-Service microservice, and have [provided a working graph](https://github.com/vinas1/solar-microservice/blob/main/src/zabbix/morningstar_renogy_dashboard.json).
+The Zabbix dashboard (`morningstar_renogy_dashboard.json`) provides comprehensive visualization of the telemetry data. It includes graphs for various key metrics:
 
-You can easily use Prometheus with Grafana or just leverage telnet for real time telemetry.
+- **Battery Bank Voltage (V)**: Shows voltage levels from both solar systems and the microservice.
+- **Battery Charging Current (A)**: Displays charging current from both systems.
+- **Solar Array Voltage (V)**: Visualizes the solar array voltage levels.
+- **PV Input Current (Amps)**: Displays PV input current from the microservice.
+- **Battery State of Charge (%)**: Shows battery SOC from the microservice.
+- **Solar Panel Array Potential Watts**: Plots the array's maximum power output.
+- **System Temperatures (°C)**: Monitors ambient, battery, and heatsink temperatures.
 
 <img width="978" height="509" alt="telnet-solar-service" src="https://github.com/user-attachments/assets/0efac1a9-108d-43c1-b9a2-d5baa8818ae0" />
 
-### Alternative Monitoring Options
+## 🛠 Implementation Guide
 
-**Telnet Monitoring** - The ESP32-S3 edge probe includes a built-in Telnet server on port 23 that can serve as a real-time monitoring interface:
+To set up the Zabbix telemetry integration:
 
-```bash
-# Connect to the edge probe for live telemetry stream
-telnet <probe_ip> 23
-```
+1.  **Zabbix Host Setup**:
+    - Create a new host in Zabbix for the solar microservice.
+    - Define the necessary items to collect telemetry data (e.g., battery voltage, charging current).
 
-Telnet can also be piped into other monitoring functions or logging systems if Zabbix integration is not desired:
+2.  **Zabbix Items Configuration**:
+    - Create items to receive data from the microservice.
+    - Use Zabbix trappers or similar mechanisms for data ingestion.
 
-```bash
-# Pipe telnet output to a logging service
-telnet <probe_ip> 23 | tee /var/log/telemetry.log
+3.  **Dashboard Import**:
+    - Import the `morningstar_renogy_dashboard.json` into your Zabbix server.
+    - The dashboard will automatically configure the widgets to display data from the configured hosts/items.
 
-# Pipe telnet output to another monitoring system
-telnet <probe_ip> 23 | nc <destination_host> <destination_port>
-```
+## 🧪 Testing & Verification
 
-## 🚀 Quick Start
+To verify that telemetry is flowing correctly to Zabbix:
 
-1. **Hardware Requirements**
-   - Any Renogy rover charge controller equipped with a BT-1 or BT-2 bluetooth adapter.
-   - k3s or a way to run your docker microservice and a free zabbix instance
-     - The bluetooth probe was built on the following device:
-       - [ESP32-S3 DevKitC-1 N16R8 Development Board](https://www.amazon.com/dp/B0GVSHT2Q2)
-     - Alternatively, use these specifications if the above is unavailable:
-       - Dual-Core Xtensa LX7
-       - 16MB Flash + 8MB PSRAM
-       - WiFi & Bluetooth 5.0
-       - USB-C
-       - External Antenna Support for IoT & Embedded Projects
+1.  **Check Data Flow**:
+    - Ensure the microservice is successfully receiving and processing Modbus data.
+    - Confirm that the `FastAPI` service is sending telemetry to Zabbix.
 
-2. **Set Up the ESP32 Firmware**
-   - Edit the [esp32-ble-probe.cpp](./src/esp32-ble-probe.cpp).
-   - Upload it to your ESP32 device
+2.  **Verify Dashboard**:
+    - After importing the dashboard, check that all graphs are populated with data.
+    - Validate that the metrics align with actual system readings.
 
-## 📦 Dependencies
-
-Before proceeding, ensure you have the following tools installed:
-- Arduino IDE (for ESP32 development)
-- Python (for the microservice)
-- Docker (for containerization)
-- kubectl (for Kubernetes operations)
-
-## 🛠 Build and Deploy the Microservice
-
-1. **Authenticate and Push Container Image to GitHub Container Registry (GHCR)**
-   ```bash
-   echo "<GHCR_TOKEN>" | docker login ghcr.io -u vinas1 --password-stdin
-   docker build -t ghcr.io/vinas1/solar-service:v1 .
-   docker push ghcr.io/vinas1/solar-service:v1
-   ```
-
-2. **Configure K3s to Use the GitHub Container Registry (GHCR) Secret**
-   ```bash
-   kubectl create secret docker-registry ghcr-secret \
-     --docker-server=ghcr.io \
-     --docker-username=vinas1 \
-     --docker-password=<GHCR_TOKEN> \
-     --docker-email=vinas1@nospam.com \
-     --namespace=default
-   ```
-
-3. **Deploy the Kubernetes Manifest to Your K3s Cluster**
-   ```bash
-   kubectl apply -f solar-service.yaml
-   ```
-
-4. **Verify Pod Health and Test API Endpoint**
-   ```bash
-   kubectl get pods -l app=solar-service
-   curl -X POST http://localhost:30500/api/renogy \
-     -H "Content-Type: application/json" \
-     -d '{"controller1": {"battery_voltage": 13.6}}'
-   ```
-
-5. **Inspect Logs and Manage Iterative Updates**
-   ```bash
-   # Monitor live container output
-   kubectl logs -l app=solar-service --tail=20 -f
-
-   # Force restart pods after pushing code updates
-   kubectl rollout restart deployment solar-service
-
-   # Reload Zabbix cache for updated trapper items
-   zabbix_server -R config_cache_reload
-   ```
+3.  **Check Logs**:
+    - Review microservice logs for any errors related to Zabbix data transmission.
 
 ## ⚙️ Configuration
 
-The Zabbix integration should be configured through environment variables or deployment settings. A minimal configuration typically includes:
+Zabbix integration requires specific configuration in the microservice:
 
 ```env
 ZABBIX_ENABLED=true
@@ -162,7 +115,7 @@ ZABBIX_SERVER_PORT=10051
 ZABBIX_HOSTNAME=solar-microservice
 ```
 
-Update these values to reflect the actual topology of your environment.
+Update these values to reflect the actual topology of your Zabbix server and microservice.
 
 ## 📋 Network and Service Matrix
 
