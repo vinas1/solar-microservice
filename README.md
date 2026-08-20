@@ -1,4 +1,4 @@
-# 🌞 Renogy Rover Modbus Solar Power Telemetry System 🌞
+# 🌞 Renogy Rover Modbus Solar Telemetry System 🌞
 
 <img width="1000" height="200" alt="download" src="https://github.com/user-attachments/assets/0af7c269-b475-432e-a5e7-a9dbae7a61a0"/>
 
@@ -11,7 +11,7 @@ This repo contains an end-to-end telemetry pipeline for Renogy Rover solar equip
 
 ## How It Works
 
-This document outlines the system architecture for the edge probe firmware and telemetry pipeline monitoring dual Renogy Rover Charge Controllers via Bluetooth Low Energy (BLE) Modbus RTU.
+This diagram outlines the edge probe firmware and telemetry pipeline, which monitors a pair of Renogy Rover Charge Controllers via Bluetooth Low Energy (BLE) Modbus RTU.
 
 ```mermaid
 flowchart LR
@@ -52,6 +52,12 @@ The system includes:
 - A Zabbix dashboard
 - Telnet diagnostics
 - Arduino OTA updates
+
+## Why It's Cool
+
+>The Rover 40 has [a firmware glitch](./Rover40_Firmware_Fix.md) that this system effectively resolves!
+
+**Plus** renogy rover MPPT charge controllers can be low cost high performers with a couple of tweaks. By gathering the bluetooth data from your controllers, you'll be able to see real time performace, and long time trends from the comfort of your browser.
 
 ## Supported Hardware
 
