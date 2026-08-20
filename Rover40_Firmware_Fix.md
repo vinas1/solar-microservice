@@ -31,7 +31,7 @@ Testing showed:
 2. After the app applies User mode, Rover 40 PV voltage rises from approximately 14 V to approximately 32 V.
 3. An Android Bluetooth HCI capture revealed that the Renogy app sends a specific two-write sequence.
 
-The firmware now reproduces that captured sequence instead of guessing at individual registers. You'll benefit from my hours of testing and start generating much more power from your existing solar panels.
+The firmware in the [ESP dev board](./src/esp32-ble-probe.cpp) now reproduces that captured sequence instead of guessing at individual registers. You'll benefit from my hours of testing and start generating much more power from your existing solar panels.
 
 ## Affected Controller
 
