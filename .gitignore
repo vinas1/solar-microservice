@@ -54,3 +54,7 @@ ehthumbs_vista.db
 # Linux
 .directory
 *~
+
+# skills
+.agents/skills/archify/
+.agents/

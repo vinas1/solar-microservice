@@ -1,0 +1,468 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Solar Microservice Runtime Architecture",
+    "output": "docs/architecture/solar-microservice-runtime.architecture.html",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/vinas1/solar-microservice",
+      "provider": "github",
+      "revision": "aa72a072e839d4fced00204087ae2796d4461655"
+    },
+    "views": [
+      {
+        "id": "telemetry-flow",
+        "label": "End-to-end Telemetry Flow",
+        "focus": [
+          "solar_hardware",
+          "ble_adapters",
+          "ble_probe",
+          "k3s_service",
+          "fastapi_app",
+          "zabbix_sender",
+          "zabbix_server",
+          "zabbix_dashboards"
+        ],
+        "note": "Follow solar telemetry from off-grid charge controllers through BLE, K3s ingestion, and Zabbix."
+      },
+      {
+        "id": "edge-subsystem",
+        "label": "Edge Probe & Diagnostic Services",
+        "focus": [
+          "ble_probe",
+          "ota_listener",
+          "telnet_server"
+        ],
+        "note": "ESP32-S3 edge node running non-blocking BLE polling, Telnet logging, and ArduinoOTA updates."
+      },
+      {
+        "id": "ingestion-observability",
+        "label": "Cluster Ingestion & Observability",
+        "focus": [
+          "k3s_service",
+          "fastapi_app",
+          "zabbix_sender",
+          "zabbix_server",
+          "zabbix_dashboards"
+        ],
+        "note": "Containerized FastAPI microservice transforming payloads and streaming to Zabbix."
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "solar_hardware",
+      "type": "external",
+      "label": "Renogy Rovers",
+      "sublabel": "Rover 40 & 60 MPPT",
+      "pos": [
+        40,
+        280
+      ],
+      "size": [
+        120,
+        60
+      ],
+      "sources": [
+        {
+          "path": "src/esp32-ble-probe.cpp",
+          "line": 39,
+          "end_line": 44,
+          "label": "Target Rover MACs"
+        },
+        {
+          "path": "README.md",
+          "line": 64,
+          "end_line": 70,
+          "label": "Tested Models"
+        }
+      ]
+    },
+    {
+      "id": "ble_adapters",
+      "type": "external",
+      "label": "BT-1 / BT-2",
+      "sublabel": "BLE Adapters",
+      "pos": [
+        220,
+        280
+      ],
+      "size": [
+        120,
+        60
+      ],
+      "sources": [
+        {
+          "path": "src/esp32-ble-probe.cpp",
+          "line": 53,
+          "end_line": 67,
+          "label": "GATT UUIDs"
+        },
+        {
+          "path": "README.md",
+          "line": 378,
+          "end_line": 391,
+          "label": "GATT Services"
+        }
+      ]
+    },
+    {
+      "id": "ota_listener",
+      "type": "security",
+      "label": "ArduinoOTA",
+      "sublabel": "Port 3232 Listener",
+      "tag": "OTA_PW",
+      "pos": [
+        415,
+        150
+      ],
+      "size": [
+        130,
+        60
+      ],
+      "sources": [
+        {
+          "path": "src/esp32-ble-probe.cpp",
+          "line": 109,
+          "end_line": 110,
+          "label": "ArduinoOTA Handler"
+        },
+        {
+          "path": "src/esp32-ble-probe.cpp",
+          "line": 907,
+          "end_line": 908,
+          "label": "ArduinoOTA Begin"
+        }
+      ]
+    },
+    {
+      "id": "ble_probe",
+      "type": "backend",
+      "label": "ESP32-S3 Probe",
+      "sublabel": "NimBLE Telemetry Engine",
+      "pos": [
+        415,
+        280
+      ],
+      "size": [
+        130,
+        60
+      ],
+      "sources": [
+        {
+          "path": "src/esp32-ble-probe.cpp",
+          "line": 156,
+          "end_line": 219,
+          "label": "sendToSolarService"
+        },
+        {
+          "path": "src/esp32-ble-probe.cpp",
+          "line": 981,
+          "end_line": 1020,
+          "label": "Main Loop"
+        }
+      ]
+    },
+    {
+      "id": "telnet_server",
+      "type": "backend",
+      "label": "Telnet Console",
+      "sublabel": "TCP Port 23 Logger",
+      "pos": [
+        415,
+        410
+      ],
+      "size": [
+        130,
+        60
+      ],
+      "sources": [
+        {
+          "path": "src/esp32-ble-probe.cpp",
+          "line": 69,
+          "end_line": 71,
+          "label": "Telnet Server :23"
+        },
+        {
+          "path": "src/esp32-ble-probe.cpp",
+          "line": 86,
+          "end_line": 92,
+          "label": "remoteLog Broadcast"
+        }
+      ]
+    },
+    {
+      "id": "k3s_service",
+      "type": "cloud",
+      "label": "K3s NodePort",
+      "sublabel": "Port 30500 Ingress",
+      "tag": "192.168.0.60",
+      "pos": [
+        615,
+        280
+      ],
+      "size": [
+        130,
+        60
+      ],
+      "sources": [
+        {
+          "path": "src/microservice/solar-service.yaml",
+          "line": 26,
+          "end_line": 38,
+          "label": "NodePort Service"
+        }
+      ]
+    },
+    {
+      "id": "fastapi_app",
+      "type": "backend",
+      "label": "FastAPI Service",
+      "sublabel": "app.py :5000",
+      "pos": [
+        810,
+        280
+      ],
+      "size": [
+        130,
+        60
+      ],
+      "sources": [
+        {
+          "path": "src/microservice/app.py",
+          "line": 11,
+          "end_line": 36,
+          "label": "POST /api/renogy"
+        },
+        {
+          "path": "src/microservice/Dockerfile",
+          "line": 8,
+          "end_line": 14,
+          "label": "Uvicorn Run"
+        }
+      ]
+    },
+    {
+      "id": "zabbix_sender",
+      "type": "backend",
+      "label": "zabbix_sender",
+      "sublabel": "CLI Subprocess",
+      "pos": [
+        810,
+        410
+      ],
+      "size": [
+        130,
+        60
+      ],
+      "sources": [
+        {
+          "path": "src/microservice/app.py",
+          "line": 26,
+          "end_line": 34,
+          "label": "zabbix_sender Process"
+        },
+        {
+          "path": "src/microservice/Dockerfile",
+          "line": 3,
+          "end_line": 5,
+          "label": "Sender Package"
+        }
+      ]
+    },
+    {
+      "id": "zabbix_dashboards",
+      "type": "frontend",
+      "label": "Zabbix Dashboards",
+      "sublabel": "Web UI & Alerts",
+      "pos": [
+        1010,
+        280
+      ],
+      "size": [
+        130,
+        60
+      ],
+      "sources": [
+        {
+          "path": "src/zabbix/morningstar_renogy_dashboard.json",
+          "line": 1,
+          "end_line": 20,
+          "label": "Renogy Dashboard"
+        },
+        {
+          "path": "src/zabbix/zabbix-api-request.py",
+          "line": 20,
+          "end_line": 27,
+          "label": "Dashboard Automation"
+        }
+      ]
+    },
+    {
+      "id": "zabbix_server",
+      "type": "database",
+      "label": "Zabbix Server",
+      "sublabel": "Trapper Port 10051",
+      "tag": "gsdebian",
+      "pos": [
+        1010,
+        410
+      ],
+      "size": [
+        130,
+        60
+      ],
+      "sources": [
+        {
+          "path": "src/microservice/app.py",
+          "line": 8,
+          "end_line": 9,
+          "label": "Zabbix Server Host"
+        },
+        {
+          "path": "src/zabbix/zabbix-api-request.py",
+          "line": 11,
+          "end_line": 18,
+          "label": "JSON-RPC API"
+        }
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Off-Grid Solar Site (Physical & BLE)",
+      "wraps": [
+        "solar_hardware",
+        "ble_adapters"
+      ]
+    },
+    {
+      "kind": "security-group",
+      "label": "ESP32-S3 Edge Node (WiFi STA)",
+      "wraps": [
+        "ble_probe",
+        "ota_listener",
+        "telnet_server"
+      ]
+    },
+    {
+      "kind": "region",
+      "label": "K3s Cluster (Node 192.168.0.60)",
+      "wraps": [
+        "k3s_service",
+        "fastapi_app",
+        "zabbix_sender"
+      ]
+    },
+    {
+      "kind": "security-group",
+      "label": "Observability Host (gsdebian)",
+      "wraps": [
+        "zabbix_server",
+        "zabbix_dashboards"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "modbus-serial",
+      "from": "solar_hardware",
+      "to": "ble_adapters",
+      "label": "RS-485"
+    },
+    {
+      "id": "ble-gatt-notifications",
+      "from": "ble_adapters",
+      "to": "ble_probe",
+      "label": "BLE GATT"
+    },
+    {
+      "id": "ota-handling",
+      "from": "ble_probe",
+      "to": "ota_listener",
+      "label": "service loop",
+      "variant": "dashed",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "telnet-logging",
+      "from": "ble_probe",
+      "to": "telnet_server",
+      "label": "remoteLog()",
+      "variant": "dashed",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelDy": 20
+    },
+    {
+      "id": "http-ingest",
+      "from": "ble_probe",
+      "to": "k3s_service",
+      "label": "HTTP POST",
+      "variant": "emphasis"
+    },
+    {
+      "id": "nodeport-route",
+      "from": "k3s_service",
+      "to": "fastapi_app",
+      "label": ":30500"
+    },
+    {
+      "id": "stdin-pipe",
+      "from": "fastapi_app",
+      "to": "zabbix_sender",
+      "label": "stdin pipe",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelDy": 20
+    },
+    {
+      "id": "trapper-send",
+      "from": "zabbix_sender",
+      "to": "zabbix_server",
+      "label": "TCP:10051",
+      "variant": "emphasis"
+    },
+    {
+      "id": "dashboard-metrics",
+      "from": "zabbix_server",
+      "to": "zabbix_dashboards",
+      "label": "visualize",
+      "fromSide": "top",
+      "toSide": "bottom",
+      "labelDy": -20
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Edge Telemetry & BLE Modbus",
+      "items": [
+        "ESP32-S3 polls Rover 40/60 controllers via Modbus RTU over BLE GATT",
+        "Non-blocking serviceSystem() services ArduinoOTA and Telnet console",
+        "Static 128-byte rxBuffer with CRC-16 eliminates heap fragmentation"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "K3s Ingestion Microservice",
+      "items": [
+        "K3s Deployment exposes FastAPI REST service via NodePort 30500",
+        "Endpoint /api/renogy extracts controller telemetry keys",
+        "Metrics piped directly into zabbix_sender via stdin"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Observability & Automation",
+      "items": [
+        "Zabbix Server on gsdebian ingests Trapper payloads on port 10051",
+        "Automated MPPT recovery clears Rover 40 14V voltage-lock glitches",
+        "Automation scripts deploy versioned dashboard blueprints via JSON-RPC"
+      ]
+    }
+  ]
+}
