@@ -580,6 +580,9 @@ kubectl apply -f solar-service.yaml
 - BLE client cleanup after every poll
 - Rate-limited Rover 40 recovery attempts
 
+<sub style="font-size: 8px;"><a href="#table-of-contents">[> Table of contents <]</a></sub>
+<br><br><br><br>
+
 ## Troubleshooting
 
 ### No Controllers Discovered
