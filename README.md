@@ -52,7 +52,7 @@ Off-grid solar systems rely on charge controllers (such as Renogy Rover units) t
 
 > This microservice acts as the central bridge between low-power edge probes and central monitoring platforms.
 
-After obtaining ~$19 in hardware, you'll be able to:
+After obtaining ~$19 in [hardware](https://www.amazon.com/dp/B0GVSHT2Q2), you'll be able to:
 - Centralize Telemetry by aggregate metrics from multiple charge controllers into a single ingestion point.
 - Enable Automated Monitoring by normalizing incoming telemetry so it can be ingested directly into enterprise monitoring platforms (e.g., Zabbix, Prometheus, or Grafana).
 - Prevent Power Failure by tracking battery health, state of charge (SOC), solar input wattage, and fault states in real time to prevent premature battery degradation or unexpectedly low reserves.
