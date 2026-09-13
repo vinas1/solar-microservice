@@ -4,6 +4,14 @@
 
 A lightweight FastAPI ingestion service designed to collect off-grid solar telemetry from Renogy Rover Charge Controllers.
 
+## Table of Contents
+- [Purpose](#-purpose-(why-do-this))
+- [Overview](#-overview-what-we-are-doing)
+- [Architecture](#️-architecture)
+- [Quickstart](#️-quickstart)
+
+<br><br><br><br>
+
 ## 🎯 Purpose (Why Do This)
 
 Off-grid solar systems rely on charge controllers (such as Renogy Rover units) to manage battery charging and load distribution. However, extracting real-time diagnostics from these controllers often requires proprietary bluetooth mobile apps or direct wired connections, making continuous infrastructure monitoring difficult.
@@ -105,8 +113,11 @@ Install the following before starting:
 - `kubectl`
 - A Kubernetes or k3s cluster
 - Zabbix, Prometheus, Grafana, or another monitoring system
+  
+<br><br><br><br>
 
-## Quick Start
+<a id="quickstart"></a>
+## 🛠️ Quickstart
 
 ### 1. Clone the Repository
 
