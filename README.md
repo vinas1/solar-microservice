@@ -60,11 +60,10 @@ After obtaining ~$19 in [hardware](https://www.amazon.com/dp/B0GVSHT2Q2), you'll
 
 This repo contains an end-to-end telemetry pipeline for Renogy Rover solar equipment over Bluetooth. An ESP32-S3 microcontroller reads Modbus data via the Renogy Bluetooth stack and pushes it to a Python RESTful API microservice running on a Kubernetes (k3s) cluster. The microservice processes the modbus payload where our custom provided Zabbix dashboards ingest the data for real-time visualization and historical graphing. Backend container images are packaged and deployed using GitHub Container Registry (GHCR).
 
-<sub style="font-size: 8px;"><a href="#table-of-contents">[> Table of contents <]</a></sub>
-<br><br><br><br>
-
 <img width="1332" height="1145" alt="image" src="https://github.com/user-attachments/assets/1e67ea14-36df-4830-aa23-b94111b88e12" />
 
+<sub style="font-size: 8px;"><a href="#table-of-contents">[> Table of contents <]</a></sub>
+<br><br><br><br>
 
 ## How It Works
 
