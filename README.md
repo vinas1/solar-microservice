@@ -60,7 +60,7 @@ After obtaining ~$19 in hardware, you'll be able to:
 
 This repo contains an end-to-end telemetry pipeline for Renogy Rover solar equipment over Bluetooth. An ESP32-S3 microcontroller reads Modbus data via the Renogy Bluetooth stack and pushes it to a Python RESTful API microservice running on a Kubernetes (k3s) cluster. The microservice processes the modbus payload where our custom provided Zabbix dashboards ingest the data for real-time visualization and historical graphing. Backend container images are packaged and deployed using GitHub Container Registry (GHCR).
 
-[> Table of contents <](#table-of-contents)
+<sub style="font-size: 8px;"><a href="#table-of-contents">[> Table of contents <]</a></sub>
 <br><br><br><br>
 
 <img width="1332" height="1145" alt="image" src="https://github.com/user-attachments/assets/1e67ea14-36df-4830-aa23-b94111b88e12" />
@@ -110,8 +110,7 @@ The system includes:
 - Telnet diagnostics
 - Arduino OTA updates
 
-[> Table of contents <](#table-of-contents)
-<br><br><br><br>
+<sub style="font-size: 8px;"><a href="#table-of-contents">[> Table of contents <]</a></sub> <br><br><br><br>
 
 ## Why It's Cool
 
@@ -119,8 +118,7 @@ The system includes:
 
 **Plus** renogy rover MPPT charge controllers can be low cost high performers with a couple of tweaks. By gathering the bluetooth data from your controllers, you'll be able to see real time performace, and long time trends from the comfort of your browser.
 
-[> Table of contents <](#table-of-contents)
-<br><br><br><br>
+<sub style="font-size: 8px;"><a href="#table-of-contents">[> Table of contents <]</a></sub> <br><br><br><br>
 
 ## Supported Hardware
 
@@ -157,8 +155,7 @@ Install the following before starting:
 - A Kubernetes or k3s cluster
 - Zabbix, Prometheus, Grafana, or another monitoring system
   
-[> Table of contents <](#table-of-contents)
-<br><br><br><br>
+<sub style="font-size: 8px;"><a href="#table-of-contents">[> Table of contents <]</a></sub> <br><br><br><br>
 
 <a id="quickstart"></a>
 ## 🛠️ Quickstart
@@ -278,8 +275,7 @@ docker push \
   "ghcr.io/$GHCR_USER/solar-service:$IMAGE_TAG"
 ```
 
-[> Table of contents <](#table-of-contents)
-<br><br><br><br>
+<sub style="font-size: 8px;"><a href="#table-of-contents">[> Table of contents <]</a></sub> <br><br><br><br>
 
 ## Deploy to Kubernetes or k3s
 
@@ -382,8 +378,7 @@ PV Volts:       32.0 V
 PV Amps:        4.10 A
 ```
 
-[> Table of contents <](#table-of-contents)
-<br><br><br><br>
+<sub style="font-size: 8px;"><a href="#table-of-contents">[> Table of contents <]</a></sub> <br><br><br><br>
 
 ### OTA Updates
 
@@ -419,8 +414,7 @@ rover_40
 rover_60
 ```
 
-[> Table of contents <](#table-of-contents)
-<br><br><br><br>
+<sub style="font-size: 8px;"><a href="#table-of-contents">[> Table of contents <]</a></sub> <br><br><br><br>
 
 ## Modbus Reference
 
@@ -515,8 +509,7 @@ Current safeguards:
 - Exact transmitted frames are written to the console
 - OTA, Wi-Fi, and Telnet remain serviced during the 300 ms delay
 
-[> Table of contents <](#table-of-contents)
-<br><br><br><br>
+<sub style="font-size: 8px;"><a href="#table-of-contents">[> Table of contents <]</a></sub> <br><br><br><br>
 
 ## Zabbix
 
