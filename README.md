@@ -2,7 +2,19 @@
 
 <img width="1000" height="200" alt="download" src="https://github.com/user-attachments/assets/0af7c269-b475-432e-a5e7-a9dbae7a61a0"/>
 
-Monitor Renogy Rover charge controllers over Bluetooth using an ESP32-S3. Then send that data to Zabbix using a micro service running in your k3s environment.
+A lightweight FastAPI ingestion service designed to collect off-grid solar telemetry from Renogy Rover Charge Controllers.
+
+## 🎯 Purpose (Why Do This)
+
+Off-grid solar systems rely on charge controllers (such as Renogy Rover units) to manage battery charging and load distribution. However, extracting real-time diagnostics from these controllers often requires proprietary bluetooth mobile apps or direct wired connections, making continuous infrastructure monitoring difficult.
+
+> This microservice acts as the central bridge between low-power edge probes and central monitoring platforms.
+
+After obtaining ~$19 in hardware, you'll be able to:
+- Centralize Telemetry by aggregate metrics from multiple charge controllers into a single ingestion point.
+- Enable Automated Monitoring by normalizing incoming telemetry so it can be ingested directly into enterprise monitoring platforms (e.g., Zabbix, Prometheus, or Grafana).
+- Prevent Power Failure by tracking battery health, state of charge (SOC), solar input wattage, and fault states in real time to prevent premature battery degradation or unexpectedly low reserves.
+- Monitor Renogy Rover charge controllers over Bluetooth using an ESP32-S3. Then send that data to Zabbix using a micro service running in your k3s environment.
 
 This repo contains an end-to-end telemetry pipeline for Renogy Rover solar equipment over Bluetooth. An ESP32-S3 microcontroller reads Modbus data via the Renogy Bluetooth stack and pushes it to a Python RESTful API microservice running on a Kubernetes (k3s) cluster. The microservice processes the modbus payload where our custom provided Zabbix dashboards ingest the data for real-time visualization and historical graphing. Backend container images are packaged and deployed using GitHub Container Registry (GHCR).
 
@@ -45,7 +57,7 @@ flowchart LR
 ```
 The system includes:
 
-- An ESP32-S3 BLE telemetry probe
+- An [ESP32-S3 BLE telemetry probe](https://www.amazon.com/dp/B0GVSHT2Q2) (amazon link to my exact model)
 - A Python REST API
 - A Docker container
 - A Kubernetes deployment
@@ -66,7 +78,7 @@ Tested with:
 - Renogy Rover 40
 - Renogy Rover 60
 - Renogy BT-1 and BT-2 adapters
-- [ESP32-S3 DevKitC-1 N16R8](https://www.amazon.com/dp/B0GVSHT2Q2)
+- [ESP32-S3 DevKitC-1 N16R8](https://www.amazon.com/dp/B0GVSHT2Q2) (direct amazon link to the board I use here)
 
 Other Renogy controllers may work if the controllers use the same BLE services and Modbus register layout.
 
