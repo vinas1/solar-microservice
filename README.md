@@ -62,6 +62,7 @@ This repo contains an end-to-end telemetry pipeline for Renogy Rover solar equip
 
 [Back to top](#table-of-contents)
 
+[Back to top](#Renogy-Rover-Modbus-Solar-Telemetry-System)
 <img width="1332" height="1145" alt="image" src="https://github.com/user-attachments/assets/1e67ea14-36df-4830-aa23-b94111b88e12" />
 
 
