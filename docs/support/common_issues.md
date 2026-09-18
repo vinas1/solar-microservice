@@ -48,28 +48,28 @@ The new controller label shows a Renogy 60A model in the RCC60RVRE family, and R
 Because you reused the same BT-2, the ESP32 should still discover:
 
 ```
-1
-BT-TH-E72E9AF5
-2
-7c:72:e7:2e:9a:f5
+1. BT-TH-E72E9AF5
+2. 7c:72:e7:2e:9a:f5
 ```
-Your screenshot confirms the adapter is advertising. Most likely, the Renogy phone app connected to it and stopped it from being available to the ESP32.
+Your screenshot should confirm if the adapter is advertising. Most likely, the Renogy phone app connected to it and stopped it from being available to the ESP32.
 
 Do this:
 
-Force-close the Renogy app.
-Turn off Bluetooth on the phone.
-Power-cycle the BT-2/new controller.
-Restart the ESP32.
-Check Telnet again.
+- Force-close the Renogy app.
+- Turn off Bluetooth on the phone.
+- Power-cycle the BT-2/new controller.
+- Restart the ESP32.
+- Check Telnet again.
 
-No discovery-filter change should be needed. Your filter already matches both:
+No discovery-filter code changes should be needed. Your filter already matches both:
 
-```C++
+C++
+```
 name.startsWith("BT-TH-")
 ```
 and:
 
+C++
 ```
 mac.equalsIgnoreCase("7c:72:e7:2e:9a:f5")
 ```
