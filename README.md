@@ -640,6 +640,8 @@ For frame and register details, see [`renogy_rover_modbus_values_library.md`](./
 
 ## Support
 
-Report problems or request improvements through [GitHub Issues](https://github.com/vinas1/solar-microservice/issues).
+Check out our [common issues page](https://github.com/vinas1/solar-microservice/blob/main/docs/support/common_issues.md).
+
+Or report problems and request improvements through [GitHub Issues](https://github.com/vinas1/solar-microservice/issues).
 
 [Back to top](#Renogy-Rover-Modbus-Solar-Telemetry-System)
