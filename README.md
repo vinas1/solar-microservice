@@ -1,17 +1,73 @@
-# 🌞 Renogy Rover Modbus Solar Power Telemetry System 🌞
+# 🌞 Renogy Rover Modbus Solar Telemetry System 🌞
 
 <img width="1000" height="200" alt="download" src="https://github.com/user-attachments/assets/0af7c269-b475-432e-a5e7-a9dbae7a61a0"/>
 
-Monitor Renogy Rover charge controllers over Bluetooth using an ESP32-S3. Then send that data to Zabbix using a micro service running in your k3s environment.
+A lightweight FastAPI ingestion service designed to collect off-grid solar telemetry from Renogy Rover Charge Controllers.
+
+## Table of Contents
+- [Purpose (Why Do This)](#-purpose-why-do-this)
+- [How It Works](#how-it-works)
+- [Why It's Cool](#why-its-cool)
+- [Supported Hardware](#supported-hardware)
+- [Requirements](#requirements)
+- [Quickstart](#️-quickstart)
+  - [1. Clone the Repository](#1-clone-the-repository)
+  - [2. Configure the ESP32](#2-configure-the-esp32)
+  - [3. Build and Flash](#3-build-and-flash)
+- [Deploy the API](#deploy-the-api)
+  - [Option A: Run with Docker](#option-a-run-with-docker)
+  - [Option B: Push to GHCR](#option-b-push-to-ghcr)
+- [Deploy to Kubernetes or k3s](#deploy-to-kubernetes-or-k3s)
+  - [1. Create the Registry Secret](#1-create-the-registry-secret)
+  - [2. Update the Manifest](#2-update-the-manifest)
+  - [3. Deploy](#3-deploy)
+  - [4. Verify](#4-verify)
+- [ESP32 Diagnostics](#esp32-diagnostics)
+  - [Serial Console](#serial-console)
+  - [Telnet Console](#telnet-console)
+  - [OTA Updates](#ota-updates)
+- [JSON Payload](#json-payload)
+- [Modbus Reference](#modbus-reference)
+- [Telemetry Map](#telemetry-map)
+- [BLE Services](#ble-services)
+  - [Send Requests](#send-requests)
+  - [Receive Notifications](#receive-notifications)
+- [Rover 40 MPPT Recovery](#rover-40-mppt-recovery)
+- [Zabbix](#zabbix)
+- [Common Operations](#common-operations)
+- [Network Ports](#network-ports)
+- [Reliability Features](#reliability-features)
+- [Troubleshooting](#troubleshooting)
+  - [No Controllers Discovered](#no-controllers-discovered)
+  - [API Requests Fail](#api-requests-fail)
+  - [Rover 40 Remains Near 14 V](#rover-40-remains-near-14-v)
+  - [OTA Device Does Not Appear](#ota-device-does-not-appear)
+- [Support](#support)
+
+<br><br><br><br>
+
+## 🎯 Purpose (Why Do This)
+
+Off-grid solar systems rely on charge controllers (such as Renogy Rover units) to manage battery charging and load distribution. However, extracting real-time diagnostics from these controllers often requires proprietary bluetooth mobile apps or direct wired connections, making continuous infrastructure monitoring difficult.
+
+> This microservice acts as the central bridge between low-power edge probes and central monitoring platforms.
+
+After obtaining ~$19 in [hardware](https://www.amazon.com/dp/B0GVSHT2Q2), you'll be able to:
+- Centralize Telemetry by aggregate metrics from multiple charge controllers into a single ingestion point.
+- Enable Automated Monitoring by normalizing incoming telemetry so it can be ingested directly into enterprise monitoring platforms (e.g., Zabbix, Prometheus, or Grafana).
+- Prevent Power Failure by tracking battery health, state of charge (SOC), solar input wattage, and fault states in real time to prevent premature battery degradation or unexpectedly low reserves.
+- Monitor Renogy Rover charge controllers over Bluetooth using an ESP32-S3. Then send that data to Zabbix using a micro service running in your k3s environment.
 
 This repo contains an end-to-end telemetry pipeline for Renogy Rover solar equipment over Bluetooth. An ESP32-S3 microcontroller reads Modbus data via the Renogy Bluetooth stack and pushes it to a Python RESTful API microservice running on a Kubernetes (k3s) cluster. The microservice processes the modbus payload where our custom provided Zabbix dashboards ingest the data for real-time visualization and historical graphing. Backend container images are packaged and deployed using GitHub Container Registry (GHCR).
 
 <img width="1332" height="1145" alt="image" src="https://github.com/user-attachments/assets/1e67ea14-36df-4830-aa23-b94111b88e12" />
 
+<sub style="font-size: 8px;"><a href="#table-of-contents">[> Table of contents <]</a></sub>
+<br><br><br><br>
 
 ## How It Works
 
-This document outlines the system architecture for the edge probe firmware and telemetry pipeline monitoring dual Renogy Rover Charge Controllers via Bluetooth Low Energy (BLE) Modbus RTU.
+This diagram outlines the edge probe firmware and telemetry pipeline, which monitors a pair of Renogy Rover Charge Controllers via Bluetooth Low Energy (BLE) Modbus RTU.
 
 ```mermaid
 flowchart LR
@@ -45,13 +101,23 @@ flowchart LR
 ```
 The system includes:
 
-- An ESP32-S3 BLE telemetry probe
+- An [ESP32-S3 BLE telemetry probe](https://www.amazon.com/dp/B0GVSHT2Q2) (amazon link to my exact model)
 - A Python REST API
 - A Docker container
 - A Kubernetes deployment
 - A Zabbix dashboard
 - Telnet diagnostics
 - Arduino OTA updates
+
+<sub style="font-size: 8px;"><a href="#table-of-contents">[> Table of contents <]</a></sub> <br><br><br><br>
+
+## Why It's Cool
+
+>The Rover 40 has [a firmware glitch](./Rover40_Firmware_Fix.md) that this system effectively resolves!
+
+**Plus** renogy rover MPPT charge controllers can be low cost high performers with a couple of tweaks. By gathering the bluetooth data from your controllers, you'll be able to see real time performace, and long time trends from the comfort of your browser.
+
+<sub style="font-size: 8px;"><a href="#table-of-contents">[> Table of contents <]</a></sub> <br><br><br><br>
 
 ## Supported Hardware
 
@@ -60,7 +126,7 @@ Tested with:
 - Renogy Rover 40
 - Renogy Rover 60
 - Renogy BT-1 and BT-2 adapters
-- [ESP32-S3 DevKitC-1 N16R8](https://www.amazon.com/dp/B0GVSHT2Q2)
+- [ESP32-S3 DevKitC-1 N16R8](https://www.amazon.com/dp/B0GVSHT2Q2) (direct amazon link to the board I use here)
 
 Other Renogy controllers may work if the controllers use the same BLE services and Modbus register layout.
 
@@ -87,8 +153,11 @@ Install the following before starting:
 - `kubectl`
 - A Kubernetes or k3s cluster
 - Zabbix, Prometheus, Grafana, or another monitoring system
+  
+<sub style="font-size: 8px;"><a href="#table-of-contents">[> Table of contents <]</a></sub> <br><br><br><br>
 
-## Quick Start
+<a id="quickstart"></a>
+## 🛠️ Quickstart
 
 ### 1. Clone the Repository
 
@@ -205,6 +274,8 @@ docker push \
   "ghcr.io/$GHCR_USER/solar-service:$IMAGE_TAG"
 ```
 
+<sub style="font-size: 8px;"><a href="#table-of-contents">[> Table of contents <]</a></sub> <br><br><br><br>
+
 ## Deploy to Kubernetes or k3s
 
 ### 1. Create the Registry Secret
@@ -306,6 +377,8 @@ PV Volts:       32.0 V
 PV Amps:        4.10 A
 ```
 
+<sub style="font-size: 8px;"><a href="#table-of-contents">[> Table of contents <]</a></sub> <br><br><br><br>
+
 ### OTA Updates
 
 The firmware starts ArduinoOTA with:
@@ -339,6 +412,8 @@ Controller MAC addresses are mapped to:
 rover_40
 rover_60
 ```
+
+<sub style="font-size: 8px;"><a href="#table-of-contents">[> Table of contents <]</a></sub> <br><br><br><br>
 
 ## Modbus Reference
 
@@ -433,6 +508,8 @@ Current safeguards:
 - Exact transmitted frames are written to the console
 - OTA, Wi-Fi, and Telnet remain serviced during the 300 ms delay
 
+<sub style="font-size: 8px;"><a href="#table-of-contents">[> Table of contents <]</a></sub> <br><br><br><br>
+
 ## Zabbix
 
 A Zabbix dashboard is included here:
@@ -502,6 +579,9 @@ kubectl apply -f solar-service.yaml
 - BLE client cleanup after every poll
 - Rate-limited Rover 40 recovery attempts
 
+<sub style="font-size: 8px;"><a href="#table-of-contents">[> Table of contents <]</a></sub>
+<br><br><br><br>
+
 ## Troubleshooting
 
 ### No Controllers Discovered
@@ -561,3 +641,5 @@ For frame and register details, see [`renogy_rover_modbus_values_library.md`](./
 ## Support
 
 Report problems or request improvements through [GitHub Issues](https://github.com/vinas1/solar-microservice/issues).
+
+[Back to top](#Renogy-Rover-Modbus-Solar-Telemetry-System)
