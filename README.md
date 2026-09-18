@@ -1,4 +1,4 @@
-# 🌞 Renogy Rover Modbus Solar Telemetry System 🌞
+# 🌞 Renogy Rover Modbus Solar Telemetry System 🌞 (v1.1.0)
 
 <img width="1000" height="200" alt="download" src="https://github.com/user-attachments/assets/0af7c269-b475-432e-a5e7-a9dbae7a61a0"/>
 

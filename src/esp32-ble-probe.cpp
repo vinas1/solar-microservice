@@ -7,13 +7,13 @@
 // ============================================================================
 // CONFIGURATION
 // Timing values are milliseconds. MAC aliases account for addresses observed
-// from the same Renogy controllers across different BLE adapter revisions.
+// from the same Renogy BT-2 adapters across different adapter revisions.
 // ============================================================================
 
-// masked creds
 static constexpr const char* WIFI_SSID         = "wifi";
-static constexpr const char* WIFI_PASS         = "wifipass";
-static constexpr const char* OTA_PASSWORD      = "otapass";
+static constexpr const char* WIFI_PASS         = "pass";
+static constexpr const char* OTA_PASSWORD      = "pass";
+
 static constexpr const char* SOLAR_SERVICE_URL = "http://192.168.0.60:30500/api/renogy";
 
 static constexpr uint32_t WIFI_RETRY_MS        = 5000;
@@ -24,25 +24,40 @@ static constexpr uint32_t RESPONSE_TIMEOUT_MS  = 3000;
 static constexpr uint32_t HTTP_CONNECT_TIMEOUT_MS = 2000;
 static constexpr uint32_t HTTP_RESPONSE_TIMEOUT_MS = 3000;
 static constexpr uint32_t WIFI_STARTUP_TIMEOUT_MS = 15000;
-static constexpr bool     ENABLE_BATTERY_TYPE_REAPPLY = true;
-static constexpr uint32_t MPPT_REAPPLY_COOLDOWN_MS = 1800000; // 30 minutes
+
+static constexpr const char* FIRMWARE_VERSION = "2026-09-18-auto-model-v4.1.4";
+
+static constexpr bool     ENABLE_BATTERY_TYPE_REAPPLY = false;
+static constexpr uint32_t MPPT_REAPPLY_COOLDOWN_MS = 1800000; // 30 minutes after confirmed recovery
+static constexpr uint32_t MPPT_FAILED_RETRY_MS = 300000;      // 5 minutes after an unconfirmed attempt
 static constexpr uint8_t  MPPT_REAPPLY_CONFIRMATION_POLLS = 3;
+static constexpr uint8_t  MPPT_RECOVERY_VERIFICATION_POLLS = 3;
+static constexpr float    MPPT_RECOVERY_MIN_PV_VOLTS = 15.0f;
 
 static constexpr uint8_t  MODBUS_DEVICE_ADDRESS = 0xFF;
 static constexpr uint16_t MODBUS_START_REGISTER = 0x0100;
+
+// Registers 0x000A/0x000B hold rated voltage/current values, not text.
+// Verified from live frames: the model ASCII string begins at 0x000C and
+// spans 8 registers (16 characters), e.g. "RCC60RVRE" and "RNG-CTRL-RVR40".
+static constexpr uint16_t MODEL_START_REGISTER  = 0x000C;
+static constexpr uint16_t MODEL_REGISTER_COUNT  = 8;
+
 static constexpr uint16_t MODBUS_REGISTER_COUNT = 34;
 
 static constexpr size_t MODBUS_REQUEST_SIZE  = 8;
 static constexpr size_t MODBUS_RESPONSE_SIZE = 73;
 static constexpr size_t RX_BUFFER_SIZE       = 128;
 
-static constexpr const char* ROVER_40_MAC_A = "7c:72:e7:2e:9a:f5";
-static constexpr const char* ROVER_40_MAC_B = "80:6f:e7:2e:9a:f5";
-static constexpr const char* ROVER_60_MAC_A = "2c:6b:7d:7c:dd:6a";
-static constexpr const char* ROVER_60_MAC_B = "7c:72:7d:7c:dd:6a";
-static constexpr const char* ROVER_60_MAC_C = "80:6f:7d:7c:dd:6a";
+// BT-2 adapter addresses. These identify the Bluetooth module, not the
+// controller board, so they are only used as a last-resort fallback.
+static constexpr const char* BT2_E72_MAC_A  = "7c:72:e7:2e:9a:f5";
+static constexpr const char* BT2_E72_MAC_B  = "80:6f:e7:2e:9a:f5";
+static constexpr const char* BT2_DD6A_MAC_A = "2c:6b:7d:7c:dd:6a";
+static constexpr const char* BT2_DD6A_MAC_B = "7c:72:7d:7c:dd:6a";
+static constexpr const char* BT2_DD6A_MAC_C = "80:6f:7d:7c:dd:6a";
 
-// Captured from the Renogy app while User battery mode was reapplied to this
+// Captured from the Renogy app while User battery mode was reapplied to the
 // Rover 40. Keep both writes together and preserve the observed 300 ms gap.
 static constexpr uint16_t USER_MODE_APPLY_REGISTER = 0xE002;
 static constexpr uint16_t USER_MODE_APPLY_VALUE    = 0x00C8;
@@ -76,8 +91,8 @@ static volatile size_t rxLength = 0;
 static volatile bool rxComplete = false;
 static volatile bool rxOverflow = false;
 static volatile bool rxInvalid = false;
+static volatile uint8_t rxExpectedByteCount = MODBUS_REGISTER_COUNT * 2;
 static portMUX_TYPE rxMux = portMUX_INITIALIZER_UNLOCKED;
-
 
 // ============================================================================
 // SYSTEM SERVICES
@@ -95,7 +110,6 @@ void remoteLog(const String& message) {
 // from any bounded wait loop instead of using one long blocking delay.
 void serviceSystem() {
     static uint32_t lastWiFiRetry = 0;
-
     const uint32_t now = millis();
 
     if (
@@ -118,7 +132,7 @@ void serviceSystem() {
 
             telnetClient = incoming;
             telnetClient.println(
-                "Connected to Renogy Dual Controller Monitor!"
+                "Connected to Renogy Multi-Controller Monitor!"
             );
         } else {
             incoming.stop();
@@ -129,27 +143,67 @@ void serviceSystem() {
 }
 
 // ============================================================================
-// HTTP API EXPORT
+// CONTROLLER IDENTIFICATION
 // ============================================================================
 
-String getControllerKey(const String& mac) {
-    if (
-        mac.equalsIgnoreCase(ROVER_40_MAC_A) ||
-        mac.equalsIgnoreCase(ROVER_40_MAC_B)
-    ) {
-        return "rover_40";
+enum class ControllerType {
+    ROVER_40,
+    ROVER_60,
+    ROVER_LITE_60,
+    UNKNOWN
+};
+
+struct ControllerIdentity {
+    ControllerType type;
+    String model;
+    String key;
+    String label;
+};
+
+// Explicit prototype: the Arduino preprocessor would otherwise emit a
+// declaration above the ControllerIdentity definition.
+ControllerIdentity classifyController(const String& model, const String& mac);
+
+ControllerIdentity classifyController(const String& model, const String& mac) {
+    String value = model;
+    value.toUpperCase();
+    value.replace(" ", "");
+    value.replace("-", "");
+
+    if (value.indexOf("RVR40") >= 0 || value.indexOf("ROVER40") >= 0) {
+        return {ControllerType::ROVER_40, model, "rover_40", "Rover 40"};
     }
 
-    if (
-        mac.equalsIgnoreCase(ROVER_60_MAC_A) ||
-        mac.equalsIgnoreCase(ROVER_60_MAC_B) ||
-        mac.equalsIgnoreCase(ROVER_60_MAC_C)
-    ) {
-        return "rover_60";
+    if (value.indexOf("RVRE") >= 0 ||
+        value.indexOf("RCC60") >= 0 ||
+        value.indexOf("LITE") >= 0) {
+        return {ControllerType::ROVER_LITE_60, model, "rover_lite_60", "Rover Lite 60"};
     }
 
-    return "";
+    if (value.indexOf("RVR60") >= 0 || value.indexOf("ROVER60") >= 0) {
+        return {ControllerType::ROVER_60, model, "rover_60", "Rover 60"};
+    }
+
+    // Adapter fallback, used only when the model query fails. A BT-2 can be
+    // moved between controllers, so these are best-effort guesses and are
+    // labeled as such in the log.
+    if (mac.equalsIgnoreCase(BT2_E72_MAC_A) ||
+        mac.equalsIgnoreCase(BT2_E72_MAC_B)) {
+        return {ControllerType::UNKNOWN, model, "rover_lite_60", "Rover Lite 60 (adapter fallback)"};
+    }
+
+    if (mac.equalsIgnoreCase(BT2_DD6A_MAC_A) ||
+        mac.equalsIgnoreCase(BT2_DD6A_MAC_B) ||
+        mac.equalsIgnoreCase(BT2_DD6A_MAC_C)) {
+        return {ControllerType::UNKNOWN, model, "rover_60", "Rover 60 (adapter fallback)"};
+    }
+
+    return {ControllerType::UNKNOWN, model, "renogy_unknown", "Unknown Renogy"};
 }
+
+// ============================================================================
+// HTTP API EXPORT
+// ============================================================================
 
 // Send one controller sample to the local solar service. A fixed JSON buffer
 // avoids repeated heap allocations during continuous operation.
@@ -167,7 +221,7 @@ void sendToSolarService(
     }
 
     if (controllerKey.length() == 0) {
-        remoteLog("[HTTP] Error: Unknown controller MAC, skipping POST.");
+        remoteLog("[HTTP] Error: Unknown controller key, skipping POST.");
         return;
     }
 
@@ -262,7 +316,7 @@ uint16_t calculateCRC(
     return crc;
 }
 
-// Build a Modbus function 0x03 request for the controller telemetry registers.
+// Build a Modbus function 0x03 read request.
 void buildModbusReadRequest(
     uint8_t deviceAddress,
     uint16_t startRegister,
@@ -303,7 +357,6 @@ void buildModbusWriteRequest(
     outputFrame[5] = static_cast<uint8_t>(value & 0xFF);
 
     const uint16_t crc = calculateCRC(outputFrame, 6);
-
     outputFrame[6] = static_cast<uint8_t>(crc & 0xFF);
     outputFrame[7] = static_cast<uint8_t>((crc >> 8) & 0xFF);
 }
@@ -320,6 +373,7 @@ bool reapplyCapturedUserModeSequence(
     }
 
     uint8_t writeFrame[MODBUS_REQUEST_SIZE];
+
     buildModbusWriteRequest(
         MODBUS_DEVICE_ADDRESS,
         USER_MODE_APPLY_REGISTER,
@@ -328,6 +382,7 @@ bool reapplyCapturedUserModeSequence(
     );
 
     remoteLog("[MPPT] TX: FF 06 E0 02 00 C8 0B 82");
+
     if (!writeCharacteristic->writeValue(writeFrame, sizeof(writeFrame), false)) {
         remoteLog("[MPPT] Error: Failed to transmit 0xE002=0x00C8.");
         return false;
@@ -347,6 +402,7 @@ bool reapplyCapturedUserModeSequence(
     );
 
     remoteLog("[MPPT] TX: FF 06 E0 04 00 00 EA 15");
+
     if (!writeCharacteristic->writeValue(writeFrame, sizeof(writeFrame), false)) {
         remoteLog("[MPPT] Error: Failed to transmit 0xE004=0x0000.");
         return false;
@@ -356,6 +412,7 @@ bool reapplyCapturedUserModeSequence(
         "[MPPT] Captured User-mode sequence transmitted. "
         "Watching Rover 40 PV voltage for recovery."
     );
+
     return true;
 }
 
@@ -371,17 +428,21 @@ uint16_t readRegister(
 
 bool validateModbusResponse(
     const uint8_t* data,
-    size_t length
+    size_t length,
+    uint16_t registerCount = MODBUS_REGISTER_COUNT
 ) {
+    const size_t requiredLength = 5 + static_cast<size_t>(registerCount) * 2;
+    const uint8_t requiredByteCount = static_cast<uint8_t>(registerCount * 2);
+
     if (!data) {
         remoteLog("[MODBUS] Error: Response data is null.");
         return false;
     }
 
-    if (length != MODBUS_RESPONSE_SIZE) {
+    if (length != requiredLength) {
         remoteLog(
             "[MODBUS] Error: Expected " +
-            String(MODBUS_RESPONSE_SIZE) +
+            String(requiredLength) +
             " bytes, received " +
             String(length) +
             "."
@@ -393,22 +454,22 @@ bool validateModbusResponse(
     if (
         (data[0] != MODBUS_DEVICE_ADDRESS && data[0] != 0x01) ||
         data[1] != 0x03 ||
-        data[2] != MODBUS_REGISTER_COUNT * 2
+        data[2] != requiredByteCount
     ) {
         remoteLog("[MODBUS] Error: Invalid response header.");
         return false;
     }
 
     const uint16_t calculatedCRC =
-        calculateCRC(data, MODBUS_RESPONSE_SIZE - 2);
+        calculateCRC(data, requiredLength - 2);
 
     const uint16_t receivedCRC =
         static_cast<uint16_t>(
-            data[MODBUS_RESPONSE_SIZE - 2]
+            data[requiredLength - 2]
         ) |
         (
             static_cast<uint16_t>(
-                data[MODBUS_RESPONSE_SIZE - 1]
+                data[requiredLength - 1]
             ) << 8
         );
 
@@ -426,17 +487,40 @@ bool validateModbusResponse(
     return true;
 }
 
+// Render a frame as uppercase hex for diagnostics.
+String frameToHex(const uint8_t* data, size_t length) {
+    String output;
+    output.reserve(length * 3);
+
+    for (size_t i = 0; i < length; i++) {
+        if (data[i] < 0x10) {
+            output += '0';
+        }
+
+        output += String(data[i], HEX);
+
+        if (i + 1 < length) {
+            output += ' ';
+        }
+    }
+
+    output.toUpperCase();
+    return output;
+}
+
 // ============================================================================
 // NOTIFICATION HANDLING
 // ============================================================================
 
-// Clear the telemetry accumulator before subscribing and sending a new query.
-void resetResponseBuffer() {
+// Clear the accumulator before subscribing and sending a new query. The
+// expected byte count varies because model and telemetry reads differ in size.
+void resetResponseBuffer(uint16_t registerCount = MODBUS_REGISTER_COUNT) {
     portENTER_CRITICAL(&rxMux);
     rxLength = 0;
     rxComplete = false;
     rxOverflow = false;
     rxInvalid = false;
+    rxExpectedByteCount = static_cast<uint8_t>(registerCount * 2);
     memset(rxBuffer, 0, sizeof(rxBuffer));
     portEXIT_CRITICAL(&rxMux);
 }
@@ -484,8 +568,8 @@ void notifyCallback(
     } else if (rxLength >= 3) {
         const size_t expectedLength = static_cast<size_t>(rxBuffer[2]) + 5;
 
-        if (rxBuffer[2] != MODBUS_REGISTER_COUNT * 2 ||
-            expectedLength != MODBUS_RESPONSE_SIZE ||
+        if (rxBuffer[2] != rxExpectedByteCount ||
+            expectedLength != static_cast<size_t>(rxExpectedByteCount) + 5 ||
             expectedLength > sizeof(rxBuffer)) {
             rxInvalid = true;
         } else if (rxLength == expectedLength) {
@@ -498,6 +582,91 @@ void notifyCallback(
     portEXIT_CRITICAL(&rxMux);
 }
 
+// Read the controller model string from registers 0x000C-0x0013 so the
+// attached controller is identified independently of the BT-2 adapter.
+String readControllerModel(
+    NimBLERemoteCharacteristic* writeCharacteristic,
+    NimBLERemoteCharacteristic* notifyCharacteristic
+) {
+    resetResponseBuffer(MODEL_REGISTER_COUNT);
+
+    if (!notifyCharacteristic->subscribe(true, notifyCallback, true)) {
+        remoteLog("[MODEL] FFF1 subscription failed.");
+        return "";
+    }
+
+    uint8_t request[MODBUS_REQUEST_SIZE];
+    buildModbusReadRequest(
+        MODBUS_DEVICE_ADDRESS,
+        MODEL_START_REGISTER,
+        MODEL_REGISTER_COUNT,
+        request
+    );
+
+    const bool useWriteResponse = writeCharacteristic->canWrite();
+
+    if (!writeCharacteristic->writeValue(
+            request,
+            sizeof(request),
+            useWriteResponse
+        )) {
+        notifyCharacteristic->unsubscribe();
+        remoteLog("[MODEL] Model request write failed.");
+        return "";
+    }
+
+    const uint32_t started = millis();
+    while (!rxComplete && !rxOverflow && !rxInvalid &&
+           static_cast<uint32_t>(millis() - started) < RESPONSE_TIMEOUT_MS) {
+        serviceSystem();
+        delay(10);
+    }
+
+    notifyCharacteristic->unsubscribe();
+
+    uint8_t frame[5 + MODEL_REGISTER_COUNT * 2];
+    size_t length;
+    bool complete;
+    bool failed;
+
+    portENTER_CRITICAL(&rxMux);
+    length = rxLength;
+    complete = rxComplete;
+    failed = rxOverflow || rxInvalid;
+    if (length <= sizeof(frame)) {
+        memcpy(frame, rxBuffer, length);
+    }
+    portEXIT_CRITICAL(&rxMux);
+
+    if (!complete || failed || length != sizeof(frame)) {
+        remoteLog("[MODEL] Model response unavailable.");
+        return "";
+    }
+
+    if (!validateModbusResponse(frame, length, MODEL_REGISTER_COUNT)) {
+        return "";
+    }
+
+    remoteLog(
+        "[MODEL] Raw frame (" + String(length) + " bytes): " +
+        frameToHex(frame, length)
+    );
+
+    // Renogy pads the model field with 0x00 and spaces, so collect every
+    // printable byte across the field instead of stopping at the first pad.
+    String model;
+    for (size_t i = 3; i < 3 + MODEL_REGISTER_COUNT * 2; i++) {
+        const uint8_t value = frame[i];
+
+        if (value >= 0x20 && value <= 0x7E) {
+            model += static_cast<char>(value);
+        }
+    }
+
+    model.trim();
+    return model;
+}
+
 // ============================================================================
 // BLE HELPERS
 // ============================================================================
@@ -506,14 +675,13 @@ bool isTargetController(
     const String& name,
     const String& mac
 ) {
-    (void)name;
-
     return (
-        mac.equalsIgnoreCase(ROVER_40_MAC_A) ||
-        mac.equalsIgnoreCase(ROVER_40_MAC_B) ||
-        mac.equalsIgnoreCase(ROVER_60_MAC_A) ||
-        mac.equalsIgnoreCase(ROVER_60_MAC_B) ||
-        mac.equalsIgnoreCase(ROVER_60_MAC_C)
+        name.startsWith("BT-TH-") ||
+        mac.equalsIgnoreCase(BT2_E72_MAC_A) ||
+        mac.equalsIgnoreCase(BT2_E72_MAC_B) ||
+        mac.equalsIgnoreCase(BT2_DD6A_MAC_A) ||
+        mac.equalsIgnoreCase(BT2_DD6A_MAC_B) ||
+        mac.equalsIgnoreCase(BT2_DD6A_MAC_C)
     );
 }
 
@@ -557,9 +725,9 @@ bool findRenogyCharacteristics(
 // CONTROLLER POLLING
 // ============================================================================
 
-// Connect to one discovered controller, read registers 0x0100-0x0121, validate
-// the response, publish telemetry, evaluate the lower-environment Rover 40
-// User-mode reapply workaround, and disconnect.
+// Connect to one discovered controller, identify the model, read registers
+// 0x0100-0x0121, validate the response, publish telemetry, evaluate the
+// Rover 40 User-mode reapply workaround, and disconnect.
 void pollController(
     const NimBLEAdvertisedDevice* device
 ) {
@@ -638,7 +806,20 @@ void pollController(
         return;
     }
 
-    resetResponseBuffer();
+    const String controllerModel = readControllerModel(
+        writeCharacteristic,
+        notifyCharacteristic
+    );
+
+    const ControllerIdentity identity =
+        classifyController(controllerModel, deviceMac);
+
+    remoteLog(
+        "[MODEL] " + identity.label + " | model=\"" +
+        (controllerModel.length() ? controllerModel : String("unknown")) + "\""
+    );
+
+    resetResponseBuffer(MODBUS_REGISTER_COUNT);
 
     if (
         !notifyCharacteristic->subscribe(
@@ -653,7 +834,6 @@ void pollController(
     }
 
     uint8_t requestFrame[MODBUS_REQUEST_SIZE];
-
     buildModbusReadRequest(
         MODBUS_DEVICE_ADDRESS,
         MODBUS_START_REGISTER,
@@ -700,16 +880,13 @@ void pollController(
     bool finalInvalid;
 
     portENTER_CRITICAL(&rxMux);
-
     finalLength = rxLength;
     finalComplete = rxComplete;
     finalOverflow = rxOverflow;
     finalInvalid = rxInvalid;
-
     if (finalLength <= sizeof(responseBuffer)) {
         memcpy(responseBuffer, rxBuffer, finalLength);
     }
-
     portEXIT_CRITICAL(&rxMux);
 
     if (finalOverflow) {
@@ -730,9 +907,17 @@ void pollController(
             String(finalLength) +
             " bytes."
         );
+
         cleanupClient(client);
         return;
     }
+
+    remoteLog(
+        "[MODBUS] Raw frame (" +
+        String(finalLength) +
+        " bytes): " +
+        frameToHex(responseBuffer, finalLength)
+    );
 
     if (!validateModbusResponse(responseBuffer, finalLength)) {
         cleanupClient(client);
@@ -754,7 +939,7 @@ void pollController(
     const float pvAmps =
         readRegister(responseBuffer, 19) * 0.01f;
 
-    const String controllerKey = getControllerKey(deviceMac);
+    const String controllerKey = identity.key;
 
     const bool measurementsValid =
         batterySoc <= 100 &&
@@ -770,8 +955,9 @@ void pollController(
     }
 
     remoteLog("================================================");
-    remoteLog(" Controller:     " + deviceName + " (" + controllerKey + ")");
-    remoteLog(" MAC:            " + deviceMac);
+    remoteLog(" Controller:     " + identity.label + " (" + controllerKey + ")");
+    remoteLog(" Model:          " + (controllerModel.length() ? controllerModel : String("unknown")));
+    remoteLog(" BT-2:           " + deviceName + " [" + deviceMac + "]");
     remoteLog(
         " Battery SOC:    " +
         String(batterySoc) +
@@ -808,46 +994,150 @@ void pollController(
         pvAmps
     );
 
-    // Trigger after repeated Rover 40 samples show PV voltage collapsed near
-    // battery voltage. Interleaved Rover 60 polls do not change this counter.
-    static uint32_t lastRover40Reapply = 0;
+    // Rover 40 recovery state persists between polls and is never reset by
+    // polling another controller. Transmission is not treated as success until
+    // later Rover 40 telemetry leaves the 12-15 V band.
+    static uint32_t lastConfirmedRecovery = 0;
+    static uint32_t lastFailedAttempt = 0;
     static uint8_t rover40ConditionCount = 0;
+    static uint8_t recoveryVerificationCount = 0;
+    static bool recoveryPending = false;
+
+    const bool isRover40 = identity.type == ControllerType::ROVER_40;
 
     const bool rover40PassThrough =
-        controllerKey == "rover_40" &&
+        isRover40 &&
         pvVolts > 12.0f &&
         pvVolts < 15.0f;
 
-    if (rover40PassThrough) {
-        if (rover40ConditionCount < MPPT_REAPPLY_CONFIRMATION_POLLS) {
-            rover40ConditionCount++;
-        }
-
+    if (isRover40) {
         const uint32_t now = millis();
-        const bool reapplyCooldownElapsed =
-            lastRover40Reapply == 0 ||
-            static_cast<uint32_t>(now - lastRover40Reapply) >=
-                MPPT_REAPPLY_COOLDOWN_MS;
 
-        if (
-            ENABLE_BATTERY_TYPE_REAPPLY &&
-            rover40ConditionCount >= MPPT_REAPPLY_CONFIRMATION_POLLS &&
-            reapplyCooldownElapsed
-        ) {
-            remoteLog(
-                "[MPPT] Rover 40 stuck near battery voltage. "
-                "Replaying captured Renogy User-mode sequence..."
-            );
-
-            if (reapplyCapturedUserModeSequence(writeCharacteristic)) {
-                lastRover40Reapply = now;
+        // Verify a previously transmitted recovery sequence using new telemetry.
+        if (recoveryPending) {
+            if (pvVolts >= MPPT_RECOVERY_MIN_PV_VOLTS) {
+                recoveryPending = false;
+                recoveryVerificationCount = 0;
                 rover40ConditionCount = 0;
+                lastConfirmedRecovery = now;
+                lastFailedAttempt = 0;
+
+                remoteLog(
+                    "[MPPT] Recovery confirmed: Rover 40 PV rose to " +
+                    String(pvVolts, 1) +
+                    " V."
+                );
             } else {
-                remoteLog("[MPPT] Error: Captured User-mode sequence failed.");
+                if (
+                    recoveryVerificationCount <
+                    MPPT_RECOVERY_VERIFICATION_POLLS
+                ) {
+                    recoveryVerificationCount++;
+                }
+
+                remoteLog(
+                    "[MPPT] Recovery verification " +
+                    String(recoveryVerificationCount) +
+                    "/" +
+                    String(MPPT_RECOVERY_VERIFICATION_POLLS) +
+                    ": PV remains " +
+                    String(pvVolts, 1) +
+                    " V."
+                );
+
+                if (
+                    recoveryVerificationCount >=
+                    MPPT_RECOVERY_VERIFICATION_POLLS
+                ) {
+                    recoveryPending = false;
+                    recoveryVerificationCount = 0;
+                    rover40ConditionCount =
+                        MPPT_REAPPLY_CONFIRMATION_POLLS;
+                    lastFailedAttempt = now;
+
+                    remoteLog(
+                        "[MPPT] Recovery not confirmed. "
+                        "Retry allowed in 5 minutes."
+                    );
+                }
             }
         }
-    } else if (controllerKey == "rover_40") {
-        rover40ConditionCount = 0;
+
+        if (!recoveryPending) {
+            if (rover40PassThrough) {
+                if (
+                    rover40ConditionCount <
+                    MPPT_REAPPLY_CONFIRMATION_POLLS
+                ) {
+                    rover40ConditionCount++;
+                }
+            } else {
+                rover40ConditionCount = 0;
+            }
+
+            const bool confirmedCooldownElapsed =
+                lastConfirmedRecovery == 0 ||
+                static_cast<uint32_t>(now - lastConfirmedRecovery) >=
+                    MPPT_REAPPLY_COOLDOWN_MS;
+
+            const bool failedRetryElapsed =
+                lastFailedAttempt == 0 ||
+                static_cast<uint32_t>(now - lastFailedAttempt) >=
+                    MPPT_FAILED_RETRY_MS;
+
+            if (rover40PassThrough) {
+                remoteLog(
+                    "[MPPT] State: pv=" +
+                    String(pvVolts, 1) +
+                    "V, count=" +
+                    String(rover40ConditionCount) +
+                    "/" +
+                    String(MPPT_REAPPLY_CONFIRMATION_POLLS) +
+                    ", enabled=" +
+                    String(
+                        ENABLE_BATTERY_TYPE_REAPPLY ? "yes" : "no"
+                    ) +
+                    ", recoveryCooldown=" +
+                    String(
+                        confirmedCooldownElapsed ? "ready" : "active"
+                    ) +
+                    ", failureRetry=" +
+                    String(failedRetryElapsed ? "ready" : "active")
+                );
+            }
+
+            if (
+                ENABLE_BATTERY_TYPE_REAPPLY &&
+                rover40PassThrough &&
+                rover40ConditionCount >=
+                    MPPT_REAPPLY_CONFIRMATION_POLLS &&
+                confirmedCooldownElapsed &&
+                failedRetryElapsed
+            ) {
+                remoteLog(
+                    "[MPPT] Rover 40 stuck near battery voltage. "
+                    "Replaying captured Renogy User-mode sequence..."
+                );
+
+                if (reapplyCapturedUserModeSequence(writeCharacteristic)) {
+                    recoveryPending = true;
+                    recoveryVerificationCount = 0;
+                    rover40ConditionCount = 0;
+
+                    remoteLog(
+                        "[MPPT] Recovery sequence sent; awaiting "
+                        "subsequent Rover 40 telemetry."
+                    );
+                } else {
+                    lastFailedAttempt = now;
+
+                    remoteLog(
+                        "[MPPT] Error: Captured User-mode sequence failed. "
+                        "Retry allowed in 5 minutes."
+                    );
+                }
+            }
+        }
     }
 
     cleanupClient(client);
@@ -869,6 +1159,7 @@ void setup() {
     WiFi.begin(WIFI_SSID, WIFI_PASS);
 
     const uint32_t wifiStart = millis();
+
     while (
         WiFi.status() != WL_CONNECTED &&
         static_cast<uint32_t>(millis() - wifiStart) < WIFI_STARTUP_TIMEOUT_MS
@@ -910,6 +1201,11 @@ void setup() {
     NimBLEDevice::setPower(3);
 
     remoteLog("[SYSTEM] Renogy monitor ready.");
+    remoteLog("[SYSTEM] Firmware: " + String(FIRMWARE_VERSION));
+    remoteLog(
+        "[SYSTEM] MPPT recovery: " +
+        String(ENABLE_BATTERY_TYPE_REAPPLY ? "enabled" : "disabled")
+    );
 }
 
 // ============================================================================
@@ -996,6 +1292,7 @@ void loop() {
     }
 
     const uint32_t now = millis();
+
     const bool scanDue =
         lastScanStart == 0 ||
         static_cast<uint32_t>(now - lastScanStart) >= POLL_INTERVAL_MS;
