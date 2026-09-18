@@ -45,7 +45,7 @@ telnet to the ESP32S3 (Arduino Device)
 
 The new controller label shows a Renogy 60A model in the RCC60RVRE family, and Renogy documents BT-2 monitoring support for RCC60RVRE.
 
-Because you reused the same BT-2, the ESP32 should still discover:
+If you reused the same BT-2, the ESP32 should still discover:
 
 ```
 1. BT-TH-E72E9AF5
